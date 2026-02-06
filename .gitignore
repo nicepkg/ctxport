@@ -1,0 +1,146 @@
+# ====================
+# OS
+# ====================
+.DS_Store
+Thumbs.db
+
+# ====================
+# IDEs & Editors
+# ====================
+.idea
+*.swp
+*.swo
+*~
+
+# ====================
+# Node.js / JavaScript
+# ====================
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+.open-next
+.wxt
+out
+.out
+dist
+build
+_pagefind
+
+# Cache
+.turbo
+.cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Next.js
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ====================
+# Python
+# ====================
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv
+env/
+.venv
+.pyenv
+virtualenv
+
+# Testing & Coverage
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# mypy / type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# pyenv
+.python-version
+
+# ====================
+# Environment Variables
+# ====================
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# ====================
+# Secrets & Credentials
+# ====================
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# ====================
+# Project-specific
+# ====================
+# Session tracking files
+.call_count
+.circuit_breaker_history
+.circuit_breaker_state
+.exit_signals
+.last_reset
+.ralph_session
+.response_analysis
+.claude_session_id
+progress.json
+status.json
+logs/
+.vscode-test-web
+**/.vitepress/cache
+**/.vitepress/.temp
+**.tmp.md
+
+# for codex
+tasks
+
+# ====================
+# AI Memory System
+# ====================
+# Session memories (per-session, not tracked)
+memories/????-??-??-*.md
+
+# Keep long-term memory tracked
+!memories/long-term-memory.md
+!memories/.gitkeep
