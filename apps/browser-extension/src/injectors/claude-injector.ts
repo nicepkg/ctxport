@@ -4,6 +4,8 @@ import {
   isInjected,
   createContainer,
   removeAllByClass,
+  debouncedObserverCallback,
+  INJECTION_DELAY_MS,
 } from "./base-injector";
 
 const COPY_BTN_CLASS = "ctxport-claude-copy-btn";
@@ -13,6 +15,7 @@ const BATCH_CB_CLASS = "ctxport-claude-batch-cb";
 export class ClaudeInjector implements PlatformInjector {
   readonly platform = "claude" as const;
   private observers: MutationObserver[] = [];
+  private timers: ReturnType<typeof setTimeout>[] = [];
   private renderButton: ((container: HTMLElement) => void) | null = null;
   private renderIcon:
     | ((container: HTMLElement, conversationId: string) => void)
@@ -23,11 +26,23 @@ export class ClaudeInjector implements PlatformInjector {
 
   injectCopyButton(renderButton: (container: HTMLElement) => void): void {
     this.renderButton = renderButton;
-    this.tryInjectCopyButton();
 
-    const observer = new MutationObserver(() => this.tryInjectCopyButton());
-    observer.observe(document.body, { childList: true, subtree: true });
-    this.observers.push(observer);
+    const timer = setTimeout(() => {
+      this.tryInjectCopyButton();
+
+      const debouncedTry = debouncedObserverCallback(() =>
+        this.tryInjectCopyButton(),
+      );
+      // Observe only the main content area
+      const target =
+        document.querySelector("main") ??
+        document.querySelector('[class*="conversation"]') ??
+        document.body;
+      const observer = new MutationObserver(debouncedTry);
+      observer.observe(target, { childList: true, subtree: true });
+      this.observers.push(observer);
+    }, INJECTION_DELAY_MS);
+    this.timers.push(timer);
   }
 
   private tryInjectCopyButton(): void {
@@ -35,12 +50,9 @@ export class ClaudeInjector implements PlatformInjector {
 
     // Claude's conversation header area
     const selectors = [
-      // Header actions area
-      'header .flex.items-center.gap-1',
-      'header .flex.items-center.gap-2',
-      // Fallback: top area with buttons
+      "header .flex.items-center.gap-1",
+      "header .flex.items-center.gap-2",
       '[class*="sticky"] .flex.items-center',
-      // Fallback: conversation header
       'div[class*="conversation"] header .flex',
     ];
 
@@ -61,15 +73,22 @@ export class ClaudeInjector implements PlatformInjector {
     renderIcon: (container: HTMLElement, conversationId: string) => void,
   ): void {
     this.renderIcon = renderIcon;
-    this.tryInjectListIcons();
 
-    const observer = new MutationObserver(() => this.tryInjectListIcons());
-    const sidebar =
-      document.querySelector('[class*="sidebar"]') ??
-      document.querySelector("nav") ??
-      document.body;
-    observer.observe(sidebar, { childList: true, subtree: true });
-    this.observers.push(observer);
+    const timer = setTimeout(() => {
+      this.tryInjectListIcons();
+
+      const debouncedTry = debouncedObserverCallback(() =>
+        this.tryInjectListIcons(),
+      );
+      const sidebar =
+        document.querySelector('[class*="sidebar"]') ??
+        document.querySelector("nav") ??
+        document.body;
+      const observer = new MutationObserver(debouncedTry);
+      observer.observe(sidebar, { childList: true, subtree: true });
+      this.observers.push(observer);
+    }, INJECTION_DELAY_MS);
+    this.timers.push(timer);
   }
 
   private tryInjectListIcons(): void {
@@ -125,13 +144,14 @@ export class ClaudeInjector implements PlatformInjector {
     this.renderCheckbox = renderCheckbox;
     this.tryInjectBatchCheckboxes();
 
-    const observer = new MutationObserver(() =>
+    const debouncedTry = debouncedObserverCallback(() =>
       this.tryInjectBatchCheckboxes(),
     );
     const sidebar =
       document.querySelector('[class*="sidebar"]') ??
       document.querySelector("nav") ??
       document.body;
+    const observer = new MutationObserver(debouncedTry);
     observer.observe(sidebar, { childList: true, subtree: true });
     this.observers.push(observer);
   }
@@ -177,6 +197,8 @@ export class ClaudeInjector implements PlatformInjector {
   cleanup(): void {
     for (const obs of this.observers) obs.disconnect();
     this.observers = [];
+    for (const timer of this.timers) clearTimeout(timer);
+    this.timers = [];
     removeAllByClass(COPY_BTN_CLASS);
     removeAllByClass(LIST_ICON_CLASS);
     removeAllByClass(BATCH_CB_CLASS);

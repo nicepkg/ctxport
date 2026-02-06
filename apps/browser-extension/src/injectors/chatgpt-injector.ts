@@ -4,6 +4,8 @@ import {
   isInjected,
   createContainer,
   removeAllByClass,
+  debouncedObserverCallback,
+  INJECTION_DELAY_MS,
 } from "./base-injector";
 
 const COPY_BTN_CLASS = "ctxport-chatgpt-copy-btn";
@@ -13,6 +15,7 @@ const BATCH_CB_CLASS = "ctxport-chatgpt-batch-cb";
 export class ChatGPTInjector implements PlatformInjector {
   readonly platform = "chatgpt" as const;
   private observers: MutationObserver[] = [];
+  private timers: ReturnType<typeof setTimeout>[] = [];
   private renderButton: ((container: HTMLElement) => void) | null = null;
   private renderIcon:
     | ((container: HTMLElement, conversationId: string) => void)
@@ -23,24 +26,30 @@ export class ChatGPTInjector implements PlatformInjector {
 
   injectCopyButton(renderButton: (container: HTMLElement) => void): void {
     this.renderButton = renderButton;
-    this.tryInjectCopyButton();
 
-    const observer = new MutationObserver(() => this.tryInjectCopyButton());
-    observer.observe(document.body, { childList: true, subtree: true });
-    this.observers.push(observer);
+    // Delay initial injection to let host React finish hydration
+    const timer = setTimeout(() => {
+      this.tryInjectCopyButton();
+
+      const debouncedTry = debouncedObserverCallback(() =>
+        this.tryInjectCopyButton(),
+      );
+      // Observe only the main content area, not the entire body
+      const target = document.querySelector("main") ?? document.body;
+      const observer = new MutationObserver(debouncedTry);
+      observer.observe(target, { childList: true, subtree: true });
+      this.observers.push(observer);
+    }, INJECTION_DELAY_MS);
+    this.timers.push(timer);
   }
 
   private tryInjectCopyButton(): void {
     if (!this.renderButton) return;
 
     // ChatGPT title bar action buttons area
-    // Strategy 1: Look for the conversation header actions area
     const selectors = [
-      // Main header with sticky position
       "main .sticky .flex.items-center.gap-2",
-      // Fallback: header area buttons container
       'main header [class*="flex"][class*="items-center"]',
-      // Fallback: top bar near share button
       'div[data-testid="conversation-header"] .flex.items-center',
     ];
 
@@ -61,12 +70,20 @@ export class ChatGPTInjector implements PlatformInjector {
     renderIcon: (container: HTMLElement, conversationId: string) => void,
   ): void {
     this.renderIcon = renderIcon;
-    this.tryInjectListIcons();
 
-    const observer = new MutationObserver(() => this.tryInjectListIcons());
-    const sidebar = document.querySelector("nav") ?? document.body;
-    observer.observe(sidebar, { childList: true, subtree: true });
-    this.observers.push(observer);
+    const timer = setTimeout(() => {
+      this.tryInjectListIcons();
+
+      const debouncedTry = debouncedObserverCallback(() =>
+        this.tryInjectListIcons(),
+      );
+      // Observe only the sidebar nav, not the entire body
+      const sidebar = document.querySelector("nav") ?? document.body;
+      const observer = new MutationObserver(debouncedTry);
+      observer.observe(sidebar, { childList: true, subtree: true });
+      this.observers.push(observer);
+    }, INJECTION_DELAY_MS);
+    this.timers.push(timer);
   }
 
   private tryInjectListIcons(): void {
@@ -124,10 +141,11 @@ export class ChatGPTInjector implements PlatformInjector {
     this.renderCheckbox = renderCheckbox;
     this.tryInjectBatchCheckboxes();
 
-    const observer = new MutationObserver(() =>
+    const debouncedTry = debouncedObserverCallback(() =>
       this.tryInjectBatchCheckboxes(),
     );
     const sidebar = document.querySelector("nav") ?? document.body;
+    const observer = new MutationObserver(debouncedTry);
     observer.observe(sidebar, { childList: true, subtree: true });
     this.observers.push(observer);
   }
@@ -175,6 +193,8 @@ export class ChatGPTInjector implements PlatformInjector {
   cleanup(): void {
     for (const obs of this.observers) obs.disconnect();
     this.observers = [];
+    for (const timer of this.timers) clearTimeout(timer);
+    this.timers = [];
     removeAllByClass(COPY_BTN_CLASS);
     removeAllByClass(LIST_ICON_CLASS);
     removeAllByClass(BATCH_CB_CLASS);
