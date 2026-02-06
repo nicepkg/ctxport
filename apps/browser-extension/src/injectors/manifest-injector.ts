@@ -11,7 +11,7 @@ import {
 
 /**
  * 通用 injector：从 manifest.injection 配置驱动 DOM 注入。
- * 替代平台特定的 ChatGPTInjector / ClaudeInjector。
+ * 替代平台特定的 injector 实现。
  */
 export class ManifestInjector implements PlatformInjector {
   readonly platform: string;

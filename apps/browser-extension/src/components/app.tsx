@@ -43,7 +43,6 @@ export default function App() {
   const dismissToast = useCallback(() => setToast(null), []);
 
   const entry = detectManifest(url);
-  const platform = entry?.manifest.provider ?? null;
   const onConversationPage = isConversationPage(url);
 
   useEffect(() => {
@@ -82,7 +81,6 @@ export default function App() {
       root.render(
         <ListCopyIcon
           conversationId={conversationId}
-          provider={platform as "chatgpt" | "claude"}
           onToast={showToast}
         />,
       );
@@ -92,7 +90,7 @@ export default function App() {
       injector.cleanup();
       if (fallbackTimer) clearTimeout(fallbackTimer);
     };
-  }, [url, entry, platform, onConversationPage, showToast]);
+  }, [url, entry, onConversationPage, showToast]);
 
   // Listen for keyboard shortcuts via window events
   useEffect(() => {

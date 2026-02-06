@@ -88,6 +88,8 @@ export const claudeManifest = {
     },
   },
 
+  conversationUrlTemplate: "https://claude.ai/chat/{conversationId}",
+
   meta: {
     reliability: "high" as const,
     coverage: "Claude 全部对话类型（含 Opus, Sonnet, Haiku）",
@@ -109,6 +111,16 @@ export const claudeHooks: AdapterHooks = {
     const cookie = ctx.document?.cookie ?? "";
     const match = /(?:^|;\s*)lastActiveOrg=([^;]+)/.exec(cookie);
     if (!match?.[1]) return null;
+    return { orgId: decodeURIComponent(match[1]) };
+  },
+
+  /**
+   * headless 版本：直接从 document.cookie 读取 orgId，不依赖 HookContext。
+   */
+  extractAuthHeadless(): Record<string, string> {
+    const cookie = document.cookie;
+    const match = /(?:^|;\s*)lastActiveOrg=([^;]+)/.exec(cookie);
+    if (!match?.[1]) return {};
     return { orgId: decodeURIComponent(match[1]) };
   },
 

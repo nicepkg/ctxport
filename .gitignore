@@ -59,6 +59,7 @@ __pycache__
 .installed.cfg
 *.egg
 MANIFEST
+!packages/core-adapters/src/manifest/
 
 # Virtual environments
 venv

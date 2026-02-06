@@ -1,6 +1,6 @@
 import "./styles/globals.css";
 
-import { EXTENSION_CONTENT_MATCHES } from "@ctxport/core-adapters";
+import { EXTENSION_CONTENT_MATCHES, registerBuiltinAdapters } from "@ctxport/core-adapters";
 import { createRoot } from "react-dom/client";
 import App from "~/components/app";
 import {
@@ -15,6 +15,9 @@ export default defineContentScript({
   cssInjectionMode: "ui",
 
   async main(ctx) {
+    // Register manifest adapters early so App's first render has access
+    registerBuiltinAdapters();
+
     const ui = await createShadowRootUi(ctx, {
       name: CTXPORT_COMPONENT_NAME,
       position: "overlay",

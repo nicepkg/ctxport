@@ -107,6 +107,8 @@ export const chatgptManifest = {
     ],
   },
 
+  conversationUrlTemplate: "https://chatgpt.com/c/{conversationId}",
+
   meta: {
     reliability: "high" as const,
     coverage: "ChatGPT 全部对话类型（含 GPT-4, o1, Canvas 等）",

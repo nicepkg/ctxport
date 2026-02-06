@@ -1,18 +1,5 @@
 import { useState, useCallback } from "react";
-import {
-  registerBuiltinAdapters,
-  buildConversation,
-  type RawMessage,
-} from "@ctxport/core-adapters";
-import {
-  fetchConversationWithTokenRetry,
-} from "@ctxport/core-adapters/adapters/chatgpt/shared/api-client";
-import {
-  fetchClaudeConversation,
-  extractClaudeOrgId,
-} from "@ctxport/core-adapters/adapters/claude/shared/api-client";
-import { convertShareDataToMessages } from "@ctxport/core-adapters/adapters/chatgpt/shared/message-converter";
-import { convertClaudeMessagesToRawMessages } from "@ctxport/core-adapters/adapters/claude/shared/message-converter";
+import { findAdapterByHostUrl } from "@ctxport/core-adapters/manifest";
 import {
   serializeBundle,
   type BundleFormatType,
@@ -73,23 +60,18 @@ export function useBatchMode() {
       const ids = Array.from(selected);
       setProgress({ current: 0, total: ids.length });
 
+      const adapter = findAdapterByHostUrl(window.location.href);
+      if (!adapter) {
+        setState("normal");
+        return;
+      }
+
       const conversations: Conversation[] = [];
       let failed = 0;
 
-      // Determine platform from current URL
-      const url = window.location.href;
-      const isChatGPT = /chatgpt\.com|chat\.openai\.com/.test(url);
-
       for (let i = 0; i < ids.length; i++) {
         try {
-          let conv: Conversation;
-
-          if (isChatGPT) {
-            conv = await fetchChatGPTConversation(ids[i]!);
-          } else {
-            conv = await fetchClaudeConversationById(ids[i]!);
-          }
-
+          const conv = await adapter.fetchById(ids[i]!);
           conversations.push(conv);
         } catch {
           failed++;
@@ -135,68 +117,4 @@ export function useBatchMode() {
     clearSelection,
     copySelected,
   };
-}
-
-async function fetchChatGPTConversation(conversationId: string): Promise<Conversation> {
-  const data = await fetchConversationWithTokenRetry(conversationId);
-
-  if (!data.mapping) {
-    throw new Error("No conversation mapping found");
-  }
-
-  // Build linear conversation
-  const ids: string[] = [];
-  if (data.current_node && data.mapping[data.current_node]) {
-    let nodeId: string | undefined = data.current_node;
-    const visited = new Set<string>();
-    while (nodeId && !visited.has(nodeId)) {
-      visited.add(nodeId);
-      ids.push(nodeId);
-      nodeId = data.mapping[nodeId]?.parent;
-    }
-    ids.reverse();
-  } else {
-    const nodes = Object.values(data.mapping)
-      .filter((n) => Boolean(n?.id))
-      .sort((a, b) => (a.message?.create_time ?? 0) - (b.message?.create_time ?? 0));
-    ids.push(...nodes.map((n) => n.id!));
-  }
-
-  const rawMessages = await convertShareDataToMessages(
-    {
-      mapping: data.mapping,
-      linear_conversation: ids.map((id) => ({ id })),
-    },
-    data.conversation_id ?? conversationId,
-    undefined,
-  );
-
-  return buildConversation(rawMessages, {
-    sourceType: "extension-list",
-    provider: "chatgpt",
-    adapterId: "chatgpt-ext",
-    adapterVersion: "1.0.0",
-    title: data.title,
-    url: `https://chatgpt.com/c/${conversationId}`,
-  });
-}
-
-async function fetchClaudeConversationById(conversationId: string): Promise<Conversation> {
-  const cookie = document.cookie;
-  const orgId = extractClaudeOrgId(cookie);
-  if (!orgId) {
-    throw new Error("Cannot find Claude org ID");
-  }
-
-  const data = await fetchClaudeConversation(orgId, conversationId);
-  const rawMessages = convertClaudeMessagesToRawMessages(data.chat_messages ?? []);
-
-  return buildConversation(rawMessages, {
-    sourceType: "extension-list",
-    provider: "claude",
-    adapterId: "claude-ext",
-    adapterVersion: "1.0.0",
-    title: data.name,
-    url: `https://claude.ai/chat/${conversationId}`,
-  });
 }

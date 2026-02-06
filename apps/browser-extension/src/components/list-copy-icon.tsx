@@ -1,22 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import {
-  registerBuiltinAdapters,
-  buildConversation,
-} from "@ctxport/core-adapters";
-import {
-  fetchConversationWithTokenRetry,
-} from "@ctxport/core-adapters/adapters/chatgpt/shared/api-client";
-import {
-  fetchClaudeConversation,
-  extractClaudeOrgId,
-} from "@ctxport/core-adapters/adapters/claude/shared/api-client";
-import { convertShareDataToMessages } from "@ctxport/core-adapters/adapters/chatgpt/shared/message-converter";
-import { convertClaudeMessagesToRawMessages } from "@ctxport/core-adapters/adapters/claude/shared/message-converter";
+import { findAdapterByHostUrl } from "@ctxport/core-adapters/manifest";
 import {
   serializeConversation,
   type BundleFormatType,
 } from "@ctxport/core-markdown";
-import type { Conversation } from "@ctxport/core-schema";
 import { writeToClipboard } from "~/lib/utils";
 import { ContextMenu } from "./context-menu";
 
@@ -24,13 +11,11 @@ type IconState = "idle" | "loading" | "success" | "error";
 
 interface ListCopyIconProps {
   conversationId: string;
-  provider: "chatgpt" | "claude";
   onToast: (message: string, type: "success" | "error") => void;
 }
 
 export function ListCopyIcon({
   conversationId,
-  provider,
   onToast,
 }: ListCopyIconProps) {
   const [state, setState] = useState<IconState>("idle");
@@ -49,14 +34,10 @@ export function ListCopyIcon({
       setState("loading");
 
       try {
-        let conv: Conversation;
+        const adapter = findAdapterByHostUrl(window.location.href);
+        if (!adapter) throw new Error("No adapter found for current page");
 
-        if (provider === "chatgpt") {
-          conv = await fetchAndBuildChatGPT(conversationId);
-        } else {
-          conv = await fetchAndBuildClaude(conversationId);
-        }
-
+        const conv = await adapter.fetchById(conversationId);
         const serialized = serializeConversation(conv, { format });
         await writeToClipboard(serialized.markdown);
 
@@ -87,7 +68,7 @@ export function ListCopyIcon({
         }, 3000);
       }
     },
-    [conversationId, provider, state, onToast],
+    [conversationId, state, onToast],
   );
 
   const handleClick = useCallback(
@@ -193,59 +174,4 @@ function SmallIcon({ state }: { state: IconState }) {
       <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
     </svg>
   );
-}
-
-async function fetchAndBuildChatGPT(conversationId: string): Promise<Conversation> {
-  const data = await fetchConversationWithTokenRetry(conversationId);
-  if (!data.mapping) throw new Error("No conversation mapping found");
-
-  const ids: string[] = [];
-  if (data.current_node && data.mapping[data.current_node]) {
-    let nodeId: string | undefined = data.current_node;
-    const visited = new Set<string>();
-    while (nodeId && !visited.has(nodeId)) {
-      visited.add(nodeId);
-      ids.push(nodeId);
-      nodeId = data.mapping[nodeId]?.parent;
-    }
-    ids.reverse();
-  } else {
-    const nodes = Object.values(data.mapping)
-      .filter((n) => Boolean(n?.id))
-      .sort((a, b) => (a.message?.create_time ?? 0) - (b.message?.create_time ?? 0));
-    ids.push(...nodes.map((n) => n.id!));
-  }
-
-  const rawMessages = await convertShareDataToMessages(
-    { mapping: data.mapping, linear_conversation: ids.map((id) => ({ id })) },
-    data.conversation_id ?? conversationId,
-    undefined,
-  );
-
-  return buildConversation(rawMessages, {
-    sourceType: "extension-list",
-    provider: "chatgpt",
-    adapterId: "chatgpt-ext",
-    adapterVersion: "1.0.0",
-    title: data.title,
-    url: `https://chatgpt.com/c/${conversationId}`,
-  });
-}
-
-async function fetchAndBuildClaude(conversationId: string): Promise<Conversation> {
-  const cookie = document.cookie;
-  const orgId = extractClaudeOrgId(cookie);
-  if (!orgId) throw new Error("Cannot find Claude org ID");
-
-  const data = await fetchClaudeConversation(orgId, conversationId);
-  const rawMessages = convertClaudeMessagesToRawMessages(data.chat_messages ?? []);
-
-  return buildConversation(rawMessages, {
-    sourceType: "extension-list",
-    provider: "claude",
-    adapterId: "claude-ext",
-    adapterVersion: "1.0.0",
-    title: data.name,
-    url: `https://claude.ai/chat/${conversationId}`,
-  });
 }
