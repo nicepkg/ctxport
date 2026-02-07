@@ -1,0 +1,64 @@
+# =============================================================================
+# PR Title Validation
+# =============================================================================
+# Validates that PR titles follow Angular commit convention.
+# This ensures consistent and meaningful PR titles for changelog generation.
+#
+# Format: <type>(<scope>): <subject>
+# Example: feat(web): add dark mode toggle
+# =============================================================================
+
+name: PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Types allowed in PR titles (Angular convention)
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          # Require scope to be provided
+          requireScope: false
+          # Scopes allowed (empty = any scope allowed)
+          scopes: |
+            web
+            extension
+            docs
+            deps
+            packages
+            shared-ui
+            core-schema
+            core-plugins
+            core-markdown
+          # Ensure subject doesn't start with uppercase
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the PR title "{title}"
+            should not start with an uppercase character.
+          # Allow WIP PRs
+          wip: true
+          # Validate single commit PRs
+          validateSingleCommit: false

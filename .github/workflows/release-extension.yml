@@ -1,0 +1,285 @@
+# =============================================================================
+# Release Extension - Build and Publish Browser Extension
+# =============================================================================
+# Triggered on version tags (v*). Builds the extension and publishes to:
+# - Chrome Web Store (if CHROME_* secrets are configured)
+# - Edge Add-ons (if EDGE_* secrets are configured)
+# - GitHub Releases (always)
+#
+# Required Secrets (all optional - skips platform if not configured):
+#   Chrome: CHROME_EXTENSION_ID, CHROME_CLIENT_ID, CHROME_CLIENT_SECRET, CHROME_REFRESH_TOKEN
+#   Edge:   EDGE_PRODUCT_ID, EDGE_CLIENT_ID, EDGE_API_KEY
+# =============================================================================
+
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (skip actual publishing)"
+        required: false
+        default: false
+        type: boolean
+      ref:
+        description: "Git ref to build (branch/tag/SHA)"
+        required: false
+        default: "main"
+        type: string
+
+concurrency:
+  group: release-extension-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  # ===========================================================================
+  # Build Extension
+  # ===========================================================================
+  build:
+    name: Build Extension
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      chrome_zip: ${{ steps.zip.outputs.chrome_zip }}
+      edge_zip: ${{ steps.zip.outputs.edge_zip }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag is on main branch
+        if: github.ref_type == 'tag'
+        run: |
+          TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+          MAIN_COMMITS=$(git rev-list origin/main)
+
+          if echo "$MAIN_COMMITS" | grep -q "$TAG_COMMIT"; then
+            echo "Tag ${{ github.ref_name }} is on main branch"
+          else
+            echo "::error::Tag ${{ github.ref_name }} is not on main branch. Aborting."
+            exit 1
+          fi
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="0.0.0-dev"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building version: $VERSION"
+
+      - name: Build packages
+        run: pnpm build:packages
+
+      - name: Build and zip extension (Chrome)
+        working-directory: apps/browser-extension
+        run: pnpm zip
+
+      - name: Build and zip extension (Edge)
+        working-directory: apps/browser-extension
+        run: pnpm zip -b edge
+
+      - name: Identify zip files
+        id: zip
+        working-directory: apps/browser-extension
+        run: |
+          CHROME_ZIP=$(ls .output/*-chrome.zip 2>/dev/null | head -1)
+          EDGE_ZIP=$(ls .output/*-edge.zip 2>/dev/null | head -1)
+
+          echo "chrome_zip=$CHROME_ZIP" >> "$GITHUB_OUTPUT"
+          echo "edge_zip=$EDGE_ZIP" >> "$GITHUB_OUTPUT"
+
+          echo "Chrome ZIP: $CHROME_ZIP"
+          echo "Edge ZIP: $EDGE_ZIP"
+
+      - name: Upload Chrome ZIP artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: chrome-extension
+          path: apps/browser-extension/.output/*-chrome.zip
+          retention-days: 7
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Upload Edge ZIP artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: edge-extension
+          path: apps/browser-extension/.output/*-edge.zip
+          retention-days: 7
+          include-hidden-files: true
+          if-no-files-found: error
+
+  # ===========================================================================
+  # Publish to Chrome Web Store
+  # ===========================================================================
+  publish-chrome:
+    name: Publish to Chrome Web Store
+    runs-on: ubuntu-latest
+    needs: build
+    if: |
+      github.event.inputs.dry_run != 'true' &&
+      vars.CHROME_EXTENSION_ID != ''
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Download Chrome ZIP
+        uses: actions/download-artifact@v7
+        with:
+          name: chrome-extension
+          path: ./dist
+
+      - name: Check Chrome secrets
+        id: check-secrets
+        run: |
+          if [[ -n "${{ secrets.CHROME_CLIENT_ID }}" && \
+                -n "${{ secrets.CHROME_CLIENT_SECRET }}" && \
+                -n "${{ secrets.CHROME_REFRESH_TOKEN }}" ]]; then
+            echo "has_secrets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_secrets=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Chrome Web Store secrets not configured, skipping publish"
+          fi
+
+      - name: Publish to Chrome Web Store
+        if: steps.check-secrets.outputs.has_secrets == 'true'
+        working-directory: apps/browser-extension
+        run: |
+          CHROME_ZIP=$(ls ../../dist/*-chrome.zip | head -1)
+          echo "Publishing: $CHROME_ZIP"
+
+          pnpm wxt submit \
+            --chrome-zip "$CHROME_ZIP"
+        env:
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+
+  # ===========================================================================
+  # Publish to Edge Add-ons
+  # ===========================================================================
+  publish-edge:
+    name: Publish to Edge Add-ons
+    runs-on: ubuntu-latest
+    needs: build
+    if: |
+      github.event.inputs.dry_run != 'true' &&
+      vars.EDGE_PRODUCT_ID != ''
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Download Edge ZIP
+        uses: actions/download-artifact@v7
+        with:
+          name: edge-extension
+          path: ./dist
+
+      - name: Check Edge secrets
+        id: check-secrets
+        run: |
+          if [[ -n "${{ secrets.EDGE_CLIENT_ID }}" && \
+                -n "${{ secrets.EDGE_API_KEY }}" ]]; then
+            echo "has_secrets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_secrets=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Edge Add-ons secrets not configured, skipping publish"
+          fi
+
+      - name: Publish to Edge Add-ons
+        if: steps.check-secrets.outputs.has_secrets == 'true'
+        working-directory: apps/browser-extension
+        run: |
+          EDGE_ZIP=$(ls ../../dist/*-edge.zip | head -1)
+          echo "Publishing: $EDGE_ZIP"
+
+          pnpm wxt submit \
+            --edge-zip "$EDGE_ZIP"
+        env:
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+
+  # ===========================================================================
+  # Create GitHub Release
+  # ===========================================================================
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref_type == 'tag'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: ./artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          cp artifacts/chrome-extension/*.zip release-assets/ || true
+          cp artifacts/edge-extension/*.zip release-assets/ || true
+          ls -la release-assets/
+
+      - name: Extract release notes from CHANGELOG
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+
+          # Extract section for this version from CHANGELOG.md
+          if [[ -f "CHANGELOG.md" ]]; then
+            # Get content between this version header and next version header
+            NOTES=$(awk "/^## \[?${VERSION}\]?/{flag=1; next} /^## \[?[0-9]+\.[0-9]+\.[0-9]+\]?/{flag=0} flag" CHANGELOG.md)
+
+            if [[ -z "$NOTES" ]]; then
+              NOTES="Release v${VERSION}"
+            fi
+          else
+            NOTES="Release v${VERSION}"
+          fi
+
+          # Write to file to preserve multiline
+          echo "$NOTES" > release_notes.md
+          echo "notes_file=release_notes.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: release-assets/*
+          generate_release_notes: false
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

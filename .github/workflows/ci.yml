@@ -1,0 +1,45 @@
+# =============================================================================
+# CI - Lint & Type Check
+# =============================================================================
+# Runs on every push and pull request to ensure code quality.
+# Uses Turborepo for caching and parallel execution.
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  TURBO_CACHE_DIR: .turbo
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Cache turbo
+        uses: actions/cache@v5
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ hashFiles('turbo.json', 'pnpm-lock.yaml', '**/package.json', '**/tsconfig*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Lint & Typecheck
+        run: pnpm build:packages && pnpm turbo run lint typecheck

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://ctxport.xiaominglab.com/docs
+    about: Check the documentation for answers to common questions
+  - name: Discussions
+    url: https://github.com/nicepkg/ctxport/discussions
+    about: Ask questions and discuss ideas with the community
