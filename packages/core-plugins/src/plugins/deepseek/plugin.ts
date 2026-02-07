@@ -43,10 +43,8 @@ export const deepseekPlugin: Plugin = {
   injector: createChatInjector({
     platform: "deepseek",
     copyButtonSelectors: [
-      'div[class*="ds-chat-input"] .ds-icon-button:first-child',
-      'div[class*="chat-input"] [class*="actions"]',
-      'main header',
-      '[class*="header"]',
+      // Container holding attachment + send buttons (found via hidden file input)
+      'div:has(> input[type="file"])',
     ],
     copyButtonPosition: "prepend",
     listItemLinkSelector: 'a[href*="/a/chat/"]',
