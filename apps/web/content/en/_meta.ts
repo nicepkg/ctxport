@@ -8,4 +8,7 @@ export default {
   "supported-platforms": { title: "Supported Platforms" },
   "keyboard-shortcuts": { title: "Keyboard Shortcuts" },
   faq: { title: "FAQ" },
+  "---": { type: "separator" },
+  privacy: { title: "Privacy Policy" },
+  terms: { title: "Terms of Service" },
 } satisfies MetaRecord;

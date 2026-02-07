@@ -8,4 +8,7 @@ export default {
   "supported-platforms": { title: "支持平台" },
   "keyboard-shortcuts": { title: "键盘快捷键" },
   faq: { title: "常见问题" },
+  "---": { type: "separator" },
+  privacy: { title: "隐私政策" },
+  terms: { title: "服务条款" },
 } satisfies MetaRecord;

@@ -238,6 +238,91 @@ function Popup() {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <PopupFooter dark={dark} />
+    </div>
+  );
+}
+
+/* ---- Footer ---- */
+
+const FOOTER_LINKS = [
+  { label: "Website", url: "https://ctxport.xiaominglab.com" },
+  { label: "Docs", url: "https://ctxport.xiaominglab.com/en/docs/" },
+  { label: "Privacy", url: "https://ctxport.xiaominglab.com/en/docs/privacy/" },
+  { label: "GitHub", url: "https://github.com/nicepkg/ctxport" },
+] as const;
+
+function FooterLink({
+  label,
+  url,
+  dark,
+}: {
+  label: string;
+  url: string;
+  dark: boolean;
+}) {
+  const [hover, setHover] = useState(false);
+  const baseColor = dark ? "#6b7280" : "#9ca3af";
+  const hoverColor = dark ? "#9ca3af" : "#6b7280";
+
+  return (
+    <span
+      onClick={() => window.open(url, "_blank")}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        fontSize: 11,
+        color: hover ? hoverColor : baseColor,
+        cursor: "pointer",
+        transition: `color ${MOTION.fast} ${MOTION.easeOut}`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function PopupFooter({ dark }: { dark: boolean }) {
+  return (
+    <div
+      style={{
+        borderTop: dark
+          ? "1px solid rgba(255, 255, 255, 0.08)"
+          : "1px solid rgba(0, 0, 0, 0.06)",
+        marginTop: 16,
+        paddingTop: 10,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        {FOOTER_LINKS.map((link, i) => (
+          <span key={link.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {i > 0 && (
+              <span
+                style={{
+                  fontSize: 10,
+                  color: dark ? "#374151" : "#d1d5db",
+                }}
+              >
+                ·
+              </span>
+            )}
+            <FooterLink label={link.label} url={link.url} dark={dark} />
+          </span>
+        ))}
+      </div>
+      <span
+        style={{
+          fontSize: 10,
+          color: dark ? "#374151" : "#d1d5db",
+        }}
+      >
+        v0.0.1
+      </span>
     </div>
   );
 }

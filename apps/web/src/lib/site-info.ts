@@ -67,6 +67,14 @@ export const footerConfig = {
       label: "About Author",
       href: authorConfig.github,
     },
+    {
+      label: "Privacy",
+      href: "/en/docs/privacy",
+    },
+    {
+      label: "Terms",
+      href: "/en/docs/terms",
+    },
   ],
   copyright: {
     holder: siteConfig.name,
