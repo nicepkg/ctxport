@@ -26,7 +26,14 @@ export async function fetchConversationPayload(
   });
 
   const fReq = JSON.stringify([
-    [[rpcId, JSON.stringify([null, conversationId]), null, "generic"]],
+    [
+      [
+        rpcId,
+        JSON.stringify([`c_${conversationId}`, 100, null, 1, [0], [4], null, 1]),
+        null,
+        "generic",
+      ],
+    ],
   ]);
   const body = new URLSearchParams({ "f.req": fReq });
   if (runtimeParams.at) {

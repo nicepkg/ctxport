@@ -48,11 +48,10 @@ export const geminiPlugin: Plugin = {
   injector: createChatInjector({
     platform: "gemini",
     copyButtonSelectors: [
-      'div.input-area-container',
-      'div[class*="input-area"]',
-      'div.bottom-container',
+      // Model picker container (stable Angular class), copy button goes after it
+      '.model-picker-container',
     ],
-    copyButtonPosition: "before",
+    copyButtonPosition: "after",
     listItemLinkSelector: 'a[href*="/app/"]',
     listItemIdPattern: /\/app\/([a-zA-Z0-9]+)$/,
     mainContentSelector: 'main, div[class*="conversation"]',
