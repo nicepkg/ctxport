@@ -43,12 +43,9 @@ export const claudePlugin: Plugin = {
   injector: createChatInjector({
     platform: "claude",
     copyButtonSelectors: [
-      "header .flex.items-center.gap-1",
-      "header .flex.items-center.gap-2",
-      '[class*="sticky"] .flex.items-center',
-      'div[class*="conversation"] header .flex',
+      'div:has(> div > button[data-testid="model-selector-dropdown"])',
     ],
-    copyButtonPosition: "prepend",
+    copyButtonPosition: "after",
     listItemLinkSelector: 'a[href^="/chat/"]',
     listItemIdPattern: /\/chat\/([a-zA-Z0-9-]+)$/,
     mainContentSelector: 'main, [class*="conversation"]',

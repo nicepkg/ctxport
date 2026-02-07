@@ -126,7 +126,7 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       container.style.transition = "opacity 150ms ease";
       container.style.zIndex = "10";
 
-      const parent = link.closest("li") ?? link.closest("div") ?? link;
+      const parent = link.closest("li") ?? link;
       if (parent instanceof HTMLElement) {
         const computed = getComputedStyle(parent);
         if (computed.position === "static") {
