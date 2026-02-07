@@ -92,20 +92,22 @@ function ClipboardIcon() {
   );
 }
 
-function LogoIcon({ dark }: { dark: boolean }) {
+function LogoIcon() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={dark ? "#60a5fa" : "#2563eb"}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    <svg width="20" height="20" viewBox="0 0 512 512">
+      <defs>
+        <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#818cf8" />
+          <stop offset="100%" stopColor="#6366f1" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M 104 64 C 80 64, 64 80, 64 104 L 64 408 C 64 432, 80 448, 104 448 L 264 448 L 264 368 L 368 368 L 448 256 L 368 144 L 264 144 L 264 64 Z"
+        fill="url(#logo-g)"
+      />
+      <rect x="116" y="200" width="136" height="24" rx="12" fill="#fff" opacity="0.92" />
+      <rect x="116" y="244" width="108" height="24" rx="12" fill="#fff" opacity="0.72" />
+      <rect x="116" y="288" width="124" height="24" rx="12" fill="#fff" opacity="0.52" />
     </svg>
   );
 }
@@ -151,7 +153,7 @@ function Popup() {
           marginBottom: 4,
         }}
       >
-        <LogoIcon dark={dark} />
+        <LogoIcon />
         <span
           style={{
             fontSize: 15,
@@ -321,7 +323,7 @@ function PopupFooter({ dark }: { dark: boolean }) {
           color: dark ? "#374151" : "#d1d5db",
         }}
       >
-        v0.0.1
+        v{browser.runtime.getManifest().version}
       </span>
     </div>
   );
