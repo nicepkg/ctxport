@@ -105,9 +105,33 @@ function LogoIcon() {
         d="M 104 64 C 80 64, 64 80, 64 104 L 64 408 C 64 432, 80 448, 104 448 L 264 448 L 264 368 L 368 368 L 448 256 L 368 144 L 264 144 L 264 64 Z"
         fill="url(#logo-g)"
       />
-      <rect x="116" y="200" width="136" height="24" rx="12" fill="#fff" opacity="0.92" />
-      <rect x="116" y="244" width="108" height="24" rx="12" fill="#fff" opacity="0.72" />
-      <rect x="116" y="288" width="124" height="24" rx="12" fill="#fff" opacity="0.52" />
+      <rect
+        x="116"
+        y="200"
+        width="136"
+        height="24"
+        rx="12"
+        fill="#fff"
+        opacity="0.92"
+      />
+      <rect
+        x="116"
+        y="244"
+        width="108"
+        height="24"
+        rx="12"
+        fill="#fff"
+        opacity="0.72"
+      />
+      <rect
+        x="116"
+        y="288"
+        width="124"
+        height="24"
+        rx="12"
+        fill="#fff"
+        opacity="0.52"
+      />
     </svg>
   );
 }
@@ -302,7 +326,10 @@ function PopupFooter({ dark }: { dark: boolean }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         {FOOTER_LINKS.map((link, i) => (
-          <span key={link.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span
+            key={link.label}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
+          >
             {i > 0 && (
               <span
                 style={{
