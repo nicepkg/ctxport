@@ -239,6 +239,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          install-dependencies: 'false'
 
       - name: Download all artifacts
         uses: actions/download-artifact@v7
@@ -252,26 +259,50 @@ jobs:
           cp artifacts/edge-extension/*.zip release-assets/ || true
           ls -la release-assets/
 
-      - name: Extract release notes from CHANGELOG
-        id: changelog
+      - name: Generate release notes from conventional commits
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
+          CURRENT_TAG="v${VERSION}"
 
-          # Extract section for this version from CHANGELOG.md
-          if [[ -f "CHANGELOG.md" ]]; then
-            # Get content between this version header and next version header
-            NOTES=$(awk "/^## \[?${VERSION}\]?/{flag=1; next} /^## \[?[0-9]+\.[0-9]+\.[0-9]+\]?/{flag=0} flag" CHANGELOG.md)
+          # Find previous tag
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -1)
 
-            if [[ -z "$NOTES" ]]; then
-              NOTES="Release v${VERSION}"
-            fi
+          if [[ -n "$PREV_TAG" ]]; then
+            RANGE="${PREV_TAG}..${CURRENT_TAG}"
+            echo "Generating notes for ${RANGE}"
           else
+            RANGE="${CURRENT_TAG}"
+            echo "First release — generating notes for all commits"
+          fi
+
+          # Try CHANGELOG.md first
+          if [[ -f "CHANGELOG.md" ]]; then
+            NOTES=$(awk "/^## \[?${VERSION}\]?/{flag=1; next} /^## \[?[0-9]+\.[0-9]+\.[0-9]+\]?/{flag=0} flag" CHANGELOG.md)
+          fi
+
+          # Fallback: generate from git log
+          if [[ -z "$NOTES" ]]; then
+            echo "CHANGELOG.md section not found, generating from git log..."
+
+            FEATS=$(git log ${RANGE} --pretty=format:"- %s (%h)" --grep="^feat" --extended-regexp)
+            FIXES=$(git log ${RANGE} --pretty=format:"- %s (%h)" --grep="^fix" --extended-regexp)
+            PERFS=$(git log ${RANGE} --pretty=format:"- %s (%h)" --grep="^perf" --extended-regexp)
+            REFACTORS=$(git log ${RANGE} --pretty=format:"- %s (%h)" --grep="^refactor" --extended-regexp)
+
+            NOTES=""
+            [[ -n "$FEATS" ]] && NOTES="${NOTES}### Features\n\n${FEATS}\n\n"
+            [[ -n "$FIXES" ]] && NOTES="${NOTES}### Bug Fixes\n\n${FIXES}\n\n"
+            [[ -n "$PERFS" ]] && NOTES="${NOTES}### Performance\n\n${PERFS}\n\n"
+            [[ -n "$REFACTORS" ]] && NOTES="${NOTES}### Refactoring\n\n${REFACTORS}\n\n"
+          fi
+
+          if [[ -z "$NOTES" ]]; then
             NOTES="Release v${VERSION}"
           fi
 
-          # Write to file to preserve multiline
-          echo "$NOTES" > release_notes.md
-          echo "notes_file=release_notes.md" >> "$GITHUB_OUTPUT"
+          echo -e "$NOTES" > release_notes.md
+          echo "--- Release Notes ---"
+          cat release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
