@@ -28,6 +28,7 @@ out
 dist
 build
 _pagefind
+.wrangler
 
 # Cache
 .turbo
