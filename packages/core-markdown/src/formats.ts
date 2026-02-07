@@ -2,28 +2,36 @@ import type { ContentNode, Participant } from "@ctxport/core-schema";
 
 export type BundleFormatType = "full" | "user-only" | "code-only" | "compact";
 
+const CHAT_ROLES = new Set(["user", "assistant", "system"]);
+
 export function filterNodes(
   nodes: ContentNode[],
   participants: Participant[],
   format: BundleFormatType,
 ): string[] {
   const participantMap = new Map(participants.map((p) => [p.id, p]));
-  const getRole = (node: ContentNode) =>
-    participantMap.get(node.participantId)?.role ?? "assistant";
+  const getLabel = (node: ContentNode) => {
+    const p = participantMap.get(node.participantId);
+    if (!p) return "Assistant";
+    const role = p.role ?? "assistant";
+    if (CHAT_ROLES.has(role)) return chatRoleLabel(role);
+    // Non-chat platforms (GitHub, etc.) — use participant name
+    return p.name;
+  };
 
   switch (format) {
     case "full":
-      return formatFull(nodes, getRole);
+      return formatFull(nodes, getLabel);
     case "user-only":
-      return formatUserOnly(nodes, getRole);
+      return formatUserOnly(nodes, getLabel);
     case "code-only":
-      return formatCodeOnly(nodes, getRole);
+      return formatCodeOnly(nodes, getLabel);
     case "compact":
-      return formatCompact(nodes, getRole);
+      return formatCompact(nodes, getLabel);
   }
 }
 
-function roleLabel(role: string): string {
+function chatRoleLabel(role: string): string {
   if (role === "user") return "User";
   if (role === "system") return "System";
   return "Assistant";
@@ -31,12 +39,12 @@ function roleLabel(role: string): string {
 
 function formatFull(
   nodes: ContentNode[],
-  getRole: (node: ContentNode) => string,
+  getLabel: (node: ContentNode) => string,
 ): string[] {
   const parts: string[] = [];
 
   for (const node of nodes) {
-    parts.push(`## ${roleLabel(getRole(node))}\n\n${node.content}`);
+    parts.push(`## ${getLabel(node)}\n\n${node.content}`);
   }
 
   return parts;
@@ -44,12 +52,12 @@ function formatFull(
 
 function formatUserOnly(
   nodes: ContentNode[],
-  getRole: (node: ContentNode) => string,
+  getLabel: (node: ContentNode) => string,
 ): string[] {
   const parts: string[] = [];
 
   for (const node of nodes) {
-    if (getRole(node) !== "user") continue;
+    if (getLabel(node) !== "User") continue;
     parts.push(`## User\n\n${node.content}`);
   }
 
@@ -58,7 +66,7 @@ function formatUserOnly(
 
 function formatCodeOnly(
   nodes: ContentNode[],
-  getRole: (node: ContentNode) => string,
+  getLabel: (node: ContentNode) => string,
 ): string[] {
   const codeBlockRegex = /```[\s\S]*?```/g;
   const parts: string[] = [];
@@ -66,7 +74,7 @@ function formatCodeOnly(
   for (const node of nodes) {
     const matches = node.content.match(codeBlockRegex);
     if (matches) {
-      parts.push(`## ${roleLabel(getRole(node))}\n\n${matches.join("\n\n")}`);
+      parts.push(`## ${getLabel(node)}\n\n${matches.join("\n\n")}`);
     }
   }
 
@@ -75,7 +83,7 @@ function formatCodeOnly(
 
 function formatCompact(
   nodes: ContentNode[],
-  getRole: (node: ContentNode) => string,
+  getLabel: (node: ContentNode) => string,
 ): string[] {
   const parts: string[] = [];
 
@@ -107,7 +115,7 @@ function formatCompact(
     // Collapse multiple blank lines to single
     content = content.replace(/\n{3,}/g, "\n\n");
 
-    parts.push(`## ${roleLabel(getRole(node))}\n\n${content}`);
+    parts.push(`## ${getLabel(node)}\n\n${content}`);
   }
 
   return parts;

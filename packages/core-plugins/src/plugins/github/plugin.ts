@@ -2,6 +2,14 @@ import type { ContentBundle, ContentNode, Participant } from "@ctxport/core-sche
 import { createAppError } from "@ctxport/core-schema";
 import type { Plugin, PluginContext } from "../../types";
 import { generateId } from "../../utils";
+import {
+  githubGraphQL,
+  isUserLoggedIn,
+  ISSUE_QUERY,
+  PR_QUERY,
+  type GQLIssueData,
+  type GQLPullRequestData,
+} from "./graphql";
 import type {
   GitHubComment,
   GitHubContentType,
@@ -81,59 +89,182 @@ function parseGitHubId(id: string): ParsedGitHub | null {
   return null;
 }
 
-// --- Internal: API fetch ---
-
-async function githubFetch<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: "GET",
-    headers: { Accept: "application/vnd.github.v3+json" },
-    credentials: "include",
-  });
-
-  if (response.status === 403) {
-    throw createAppError("E-PARSE-005", "GitHub API rate limit exceeded. Please try again later.");
-  }
-
-  if (!response.ok) {
-    throw createAppError("E-PARSE-005", `GitHub API responded with ${response.status}`);
-  }
-
-  return (await response.json()) as T;
-}
-
-async function fetchAllPages<T>(path: string): Promise<T[]> {
-  const results: T[] = [];
-  let url = `${API_BASE}${path}?per_page=100`;
-
-  while (url) {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { Accept: "application/vnd.github.v3+json" },
-      credentials: "include",
-    });
-
-    if (response.status === 403) {
-      throw createAppError("E-PARSE-005", "GitHub API rate limit exceeded. Please try again later.");
-    }
-    if (!response.ok) {
-      throw createAppError("E-PARSE-005", `GitHub API responded with ${response.status}`);
-    }
-
-    const data = (await response.json()) as T[];
-    results.push(...data);
-
-    // Parse Link header for next page
-    const link = response.headers.get("Link");
-    const nextMatch = link && /<([^>]+)>;\s*rel="next"/.exec(link);
-    url = nextMatch ? nextMatch[1]! : "";
-  }
-
-  return results;
-}
-
-// --- Internal: Build ContentBundle ---
+// --- Internal: Fetch with GraphQL → REST fallback ---
 
 async function fetchAndBuild(
+  owner: string,
+  repo: string,
+  number: number,
+  type: GitHubContentType,
+  url: string,
+): Promise<ContentBundle> {
+  // Try GraphQL first (same-origin, authenticated via session cookie)
+  if (isUserLoggedIn()) {
+    try {
+      return await fetchAndBuildGraphQL(owner, repo, number, type, url);
+    } catch (err) {
+      console.warn("[ctxport/github] GraphQL failed, falling back to REST API:", err);
+    }
+  }
+
+  // Fallback to REST API (unauthenticated, cross-origin)
+  return fetchAndBuildREST(owner, repo, number, type, url);
+}
+
+// --- GraphQL path ---
+
+async function fetchAndBuildGraphQL(
+  owner: string,
+  repo: string,
+  number: number,
+  type: GitHubContentType,
+  url: string,
+): Promise<ContentBundle> {
+  if (type === "pull-request") {
+    const data = await githubGraphQL<GQLPullRequestData>(PR_QUERY, { owner, repo, number });
+    return buildPRBundleFromGQL(data, owner, repo, url);
+  }
+
+  const data = await githubGraphQL<GQLIssueData>(ISSUE_QUERY, { owner, repo, number });
+  return buildIssueBundleFromGQL(data, owner, repo, url);
+}
+
+function gqlLogin(author: { login: string } | null): string {
+  return author?.login ?? "ghost";
+}
+
+function buildIssueBundleFromGQL(
+  data: GQLIssueData,
+  owner: string,
+  repo: string,
+  url: string,
+): ContentBundle {
+  const issue = data.repository.issue;
+  const participantMap = new Map<string, Participant>();
+  const authorLogin = gqlLogin(issue.author);
+  addParticipant(participantMap, authorLogin, "author");
+
+  const nodes: ContentNode[] = [];
+
+  nodes.push({
+    id: generateId(),
+    participantId: authorLogin,
+    content: issue.body ?? "",
+    order: 0,
+    type: "issue",
+    timestamp: issue.createdAt,
+    meta: { state: issue.state.toLowerCase(), repo: `${owner}/${repo}` },
+  });
+
+  for (const [i, c] of issue.comments.nodes.entries()) {
+    const login = gqlLogin(c.author);
+    addParticipant(participantMap, login, "commenter");
+    nodes.push({
+      id: generateId(),
+      participantId: login,
+      content: c.body,
+      order: i + 1,
+      type: "comment",
+      timestamp: c.createdAt,
+    });
+  }
+
+  return {
+    id: generateId(),
+    title: `#${issue.number} ${issue.title}`,
+    participants: Array.from(participantMap.values()),
+    nodes,
+    source: {
+      platform: "github",
+      url,
+      extractedAt: new Date().toISOString(),
+      pluginId: "github",
+      pluginVersion: "1.0.0",
+    },
+    tags: issue.labels.nodes.map((l) => l.name),
+  };
+}
+
+function buildPRBundleFromGQL(
+  data: GQLPullRequestData,
+  owner: string,
+  repo: string,
+  url: string,
+): ContentBundle {
+  const pr = data.repository.pullRequest;
+  const participantMap = new Map<string, Participant>();
+  const authorLogin = gqlLogin(pr.author);
+  addParticipant(participantMap, authorLogin, "author");
+
+  const nodes: ContentNode[] = [];
+  let order = 0;
+
+  nodes.push({
+    id: generateId(),
+    participantId: authorLogin,
+    content: pr.body ?? "",
+    order: order++,
+    type: "pull-request",
+    timestamp: pr.createdAt,
+    meta: { state: pr.state.toLowerCase(), merged: pr.merged, repo: `${owner}/${repo}` },
+  });
+
+  // Collect all comments + review comments, sort by timestamp
+  const allComments: Array<{ body: string; user: string; timestamp: string; type: string; meta?: Record<string, unknown> }> = [];
+
+  for (const c of pr.comments.nodes) {
+    const login = gqlLogin(c.author);
+    addParticipant(participantMap, login, "commenter");
+    allComments.push({ body: c.body, user: login, timestamp: c.createdAt, type: "comment" });
+  }
+
+  for (const review of pr.reviews.nodes) {
+    for (const c of review.comments.nodes) {
+      const login = gqlLogin(c.author);
+      addParticipant(participantMap, login, "reviewer");
+      allComments.push({
+        body: c.body,
+        user: login,
+        timestamp: c.createdAt,
+        type: "review-comment",
+        meta: { path: c.path, diff_hunk: c.diffHunk },
+      });
+    }
+  }
+
+  allComments.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+  for (const c of allComments) {
+    nodes.push({
+      id: generateId(),
+      participantId: c.user,
+      content: c.body,
+      order: order++,
+      type: c.type,
+      timestamp: c.timestamp,
+      meta: c.meta,
+    });
+  }
+
+  return {
+    id: generateId(),
+    title: `#${pr.number} ${pr.title}`,
+    participants: Array.from(participantMap.values()),
+    nodes,
+    source: {
+      platform: "github",
+      url,
+      extractedAt: new Date().toISOString(),
+      pluginId: "github",
+      pluginVersion: "1.0.0",
+    },
+    tags: pr.labels.nodes.map((l) => l.name),
+  };
+}
+
+// --- REST API path (fallback) ---
+
+async function fetchAndBuildREST(
   owner: string,
   repo: string,
   number: number,
@@ -158,6 +289,56 @@ async function fetchAndBuild(
   return buildIssueBundle(issue, comments, owner, repo, url);
 }
 
+async function githubFetch<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: "GET",
+    headers: { Accept: "application/vnd.github.v3+json" },
+    credentials: "omit",
+  });
+
+  if (response.status === 403) {
+    throw createAppError("E-PARSE-005", "GitHub API rate limit exceeded. Please try again later.");
+  }
+
+  if (!response.ok) {
+    throw createAppError("E-PARSE-005", `GitHub API responded with ${response.status}`);
+  }
+
+  return (await response.json()) as T;
+}
+
+async function fetchAllPages<T>(path: string): Promise<T[]> {
+  const results: T[] = [];
+  let url = `${API_BASE}${path}?per_page=100`;
+
+  while (url) {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/vnd.github.v3+json" },
+      credentials: "omit",
+    });
+
+    if (response.status === 403) {
+      throw createAppError("E-PARSE-005", "GitHub API rate limit exceeded. Please try again later.");
+    }
+    if (!response.ok) {
+      throw createAppError("E-PARSE-005", `GitHub API responded with ${response.status}`);
+    }
+
+    const data = (await response.json()) as T[];
+    results.push(...data);
+
+    // Parse Link header for next page
+    const link = response.headers.get("Link");
+    const nextMatch = link && /<([^>]+)>;\s*rel="next"/.exec(link);
+    url = nextMatch ? nextMatch[1]! : "";
+  }
+
+  return results;
+}
+
+// --- REST bundle builders (unchanged) ---
+
 function buildIssueBundle(
   issue: GitHubIssue,
   comments: GitHubComment[],
@@ -167,7 +348,7 @@ function buildIssueBundle(
 ): ContentBundle {
   const participantMap = new Map<string, Participant>();
   addParticipant(participantMap, issue.user.login, "author");
-  for (const c of comments) addParticipant(participantMap, c.user.login);
+  for (const c of comments) addParticipant(participantMap, c.user.login, "commenter");
 
   const nodes: ContentNode[] = [];
 
@@ -218,7 +399,7 @@ function buildPRBundle(
 ): ContentBundle {
   const participantMap = new Map<string, Participant>();
   addParticipant(participantMap, pr.user.login, "author");
-  for (const c of comments) addParticipant(participantMap, c.user.login);
+  for (const c of comments) addParticipant(participantMap, c.user.login, "commenter");
   for (const c of reviewComments) addParticipant(participantMap, c.user.login, "reviewer");
 
   const nodes: ContentNode[] = [];

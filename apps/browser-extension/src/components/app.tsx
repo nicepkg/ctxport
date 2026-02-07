@@ -98,8 +98,8 @@ function FloatingCopyButton({
         display: "flex",
         alignItems: "center",
         gap: 8,
-        borderRadius: 14,
-        padding: "6px 6px 6px 14px",
+        borderRadius: 12,
+        padding: "2px",
         backdropFilter: "blur(16px) saturate(180%)",
         WebkitBackdropFilter: "blur(16px) saturate(180%)",
         backgroundColor: "rgba(255, 255, 255, 0.85)",
@@ -111,20 +111,6 @@ function FloatingCopyButton({
         transition: `transform ${FLOATING_MOTION.normal} ${FLOATING_MOTION.springSubtle}, box-shadow ${FLOATING_MOTION.normal} ${FLOATING_MOTION.easeOut}`,
       }}
     >
-      <span
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          fontFamily:
-            "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          letterSpacing: "0.02em",
-          color: "rgba(0, 0, 0, 0.45)",
-          userSelect: "none",
-          textTransform: "uppercase",
-        }}
-      >
-        CTXPORT
-      </span>
       <CopyButton onToast={onToast} />
     </div>
   );
