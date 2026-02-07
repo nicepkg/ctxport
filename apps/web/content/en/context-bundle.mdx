@@ -1,0 +1,96 @@
+---
+title: "Context Bundle"
+---
+
+# Context Bundle
+
+A Context Bundle is the structured Markdown format that CtxPort produces when you copy a conversation. It combines machine-readable metadata with human-readable content.
+
+## Format Overview
+
+Every Context Bundle has two parts:
+
+1. **YAML frontmatter** — metadata about the conversation
+2. **Markdown body** — the actual conversation content
+
+## Frontmatter Fields
+
+The frontmatter sits between `---` delimiters at the top of the output:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `ctxport` | Format version | `v2` |
+| `source` | Platform the conversation came from | `chatgpt`, `claude`, `gemini`, `deepseek`, `grok`, `github` |
+| `url` | Original conversation URL | `https://chatgpt.com/c/abc123` |
+| `title` | Conversation title | `Debug React Hook` |
+| `date` | When the conversation was copied (ISO 8601) | `2025-01-15T10:30:00Z` |
+| `nodes` | Number of messages in the conversation | `12` |
+| `format` | Copy format used | `full`, `user-only`, `code-only`, `compact` |
+
+## Body Format
+
+The conversation body uses `## User` and `## Assistant` headings to separate messages. All original Markdown formatting — code blocks, lists, bold, links — is preserved.
+
+## Full Example
+
+```markdown
+---
+ctxport: v2
+source: chatgpt
+url: https://chatgpt.com/c/abc123
+title: Fix TypeScript Error
+date: 2025-01-15T10:30:00Z
+nodes: 4
+format: full
+---
+
+## User
+
+I'm getting a TypeScript error: "Property 'name' does not exist on type '{}'".
+Here's my code:
+
+\```typescript
+const user = {};
+console.log(user.name);
+\```
+
+## Assistant
+
+The error occurs because TypeScript infers the type of `user` as `{}` (empty object), which has no properties. You need to define a type:
+
+\```typescript
+interface User {
+  name: string;
+}
+
+const user: User = { name: "Alice" };
+console.log(user.name);
+\```
+
+## User
+
+That fixed it, thanks! What if the name is optional?
+
+## Assistant
+
+Use a question mark to make the property optional:
+
+\```typescript
+interface User {
+  name?: string;
+}
+
+const user: User = {};
+console.log(user.name); // undefined, but no error
+\```
+```
+
+## Why This Format?
+
+**Human-readable.** It's just Markdown. Open it in any text editor, note app, or documentation tool and it looks good.
+
+**Machine-readable.** The YAML frontmatter makes it easy for scripts and AI tools to parse the metadata — source, date, message count — without regex hacks.
+
+**Git-friendly.** Context Bundles are plain text. Store them in a git repo, diff them, search them with grep. They work with every tool in the developer ecosystem.
+
+**AI-portable.** Paste a Context Bundle into any AI assistant and it immediately understands the conversation structure. The `## User` / `## Assistant` headings match how most AI tools think about conversations.

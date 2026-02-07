@@ -1,0 +1,41 @@
+---
+title: "FAQ"
+---
+
+# FAQ
+
+## Does CtxPort upload my data?
+
+**No.** CtxPort processes everything locally in your browser. Your conversations never leave your machine. There are no analytics, no telemetry, no servers involved. The source code is open on [GitHub](https://github.com/nicepkg/ctxport) — you can verify this yourself.
+
+## Does it support Firefox?
+
+Not yet. Firefox support is planned. Currently CtxPort only works on Chrome and Chromium-based browsers (Edge, Brave, Arc, etc.).
+
+## When will it be on the Chrome Web Store?
+
+We're working on it. For now, you can install CtxPort manually from [GitHub Releases](https://github.com/nicepkg/ctxport/releases). See [Getting Started](/docs/getting-started) for step-by-step instructions.
+
+## Why does CtxPort need host_permissions?
+
+CtxPort needs to read the DOM of AI chat pages to extract conversation content. The `host_permissions` in the manifest are limited to only the supported platforms (chatgpt.com, claude.ai, etc.) — CtxPort cannot access any other websites.
+
+## Can I customize the output format?
+
+CtxPort currently offers four preset formats: Full, User Only, Code Only, and Compact. Custom format templates are a planned feature for a future release.
+
+## Does sidebar copy work on all platforms?
+
+Sidebar list copy is currently available on **ChatGPT** and **Claude**. Other platforms use different sidebar structures that require separate implementation. See [Supported Platforms](/docs/supported-platforms) for the full feature matrix.
+
+## Are code block language tags preserved?
+
+Yes. When you use the Code Only format, CtxPort preserves the original language tags from code blocks (e.g., ` ```python `, ` ```typescript `). This means syntax highlighting works correctly when you paste into editors or documentation tools.
+
+## Can I copy conversations from the mobile app?
+
+No. CtxPort is a desktop browser extension and only works in Chrome and Chromium-based browsers. Mobile browsers don't support Chrome extensions.
+
+## Is CtxPort free?
+
+Yes. CtxPort is free and open source under the [MIT license](https://github.com/nicepkg/ctxport/blob/main/LICENSE).

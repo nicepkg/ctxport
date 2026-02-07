@@ -1,0 +1,41 @@
+---
+title: "常见问题"
+---
+
+# 常见问题
+
+## CtxPort 会上传我的数据吗？
+
+**不会。** CtxPort 在浏览器本地处理所有内容。你的对话永远不会离开你的电脑。没有数据分析、没有遥测、没有服务器参与。源代码在 [GitHub](https://github.com/nicepkg/ctxport) 上完全公开，你可以自行验证。
+
+## 支持 Firefox 吗？
+
+暂时不支持。Firefox 支持已在计划中。目前 CtxPort 仅适用于 Chrome 和基于 Chromium 的浏览器（Edge、Brave、Arc 等）。
+
+## 什么时候上架 Chrome Web Store？
+
+正在准备中。目前你可以从 [GitHub Releases](https://github.com/nicepkg/ctxport/releases) 手动安装 CtxPort。详细安装步骤请看 [快速开始](/docs/getting-started)。
+
+## 为什么 CtxPort 需要 host_permissions？
+
+CtxPort 需要读取 AI 聊天页面的 DOM 来提取对话内容。manifest 中的 `host_permissions` 仅限于支持的平台（chatgpt.com、claude.ai 等）— CtxPort 无法访问其他任何网站。
+
+## 可以自定义输出格式吗？
+
+CtxPort 目前提供四种预设格式：Full、User Only、Code Only 和 Compact。自定义格式模板是未来版本的计划功能。
+
+## 侧边栏复制支持所有平台吗？
+
+侧边栏列表复制目前支持 **ChatGPT** 和 **Claude**。其他平台的侧边栏结构不同，需要单独适配。详见 [支持平台](/docs/supported-platforms) 的功能支持对照表。
+
+## 代码块的语言标签会保留吗？
+
+会。使用 Code Only 格式时，CtxPort 会保留代码块的原始语言标签（如 ` ```python `、` ```typescript `）。这意味着粘贴到编辑器或文档工具中时，语法高亮能正常工作。
+
+## 可以复制手机 App 的对话吗？
+
+不可以。CtxPort 是桌面浏览器扩展，仅适用于 Chrome 和基于 Chromium 的浏览器。手机浏览器不支持 Chrome 扩展。
+
+## CtxPort 免费吗？
+
+是的。CtxPort 是免费的开源软件，使用 [MIT 许可证](https://github.com/nicepkg/ctxport/blob/main/LICENSE)。

@@ -1,231 +1,190 @@
 const en = {
+  // Roles
   "role.user": "User",
   "role.assistant": "Assistant",
   "role.system": "System",
-  "editor.title": "Editor",
-  "editor.back": "Back",
-  "editor.tabs.messages": "Messages",
-  "editor.tabs.theme": "Theme",
-  "editor.tabs.export": "Export",
-  "editor.panel.errorTitle": "Error",
-  "editor.panel.retry": "Retry",
-  "editor.panel.close": "Close",
-  "editor.panel.parseError": "Failed to parse conversation",
-  "editor.panel.exportError": "Export failed",
-  "editor.panel.exportSoon": "Export functionality coming soon!",
-  "editor.panel.exporting": "Exporting...",
-  "editor.panel.exportingProgress": "Exporting ({{progress}}%)",
-  "editor.panel.exportPages": "Export {{count}} Pages (ZIP)",
-  "editor.panel.exportPng": "Export PNG",
-  "editor.panel.selectedCount": "{{selected}} of {{total}} messages",
-  "editor.panel.pagesCount": "{{count}} pages",
-  "messages.selected": "{{selected}}/{{total}} selected",
-  "messages.selectAll": "All",
-  "messages.selectNone": "None",
-  "messages.pageBreak": "Page break",
-  "theme.label": "Content Theme",
-  "theme.background": "Desktop Background",
-  "theme.borderRadius": "Window Radius",
-  "theme.padding": "Window Margin",
-  "theme.shadow": "Window Shadow",
-  "theme.shadow.none": "None",
-  "theme.shadow.small": "Small",
-  "theme.shadow.medium": "Medium",
-  "theme.shadow.large": "Large",
-  "theme.shadow.extraLarge": "Extra Large",
-  "theme.macosBar": "macOS Title Bar",
-  "export.scale": "Scale",
-  "export.scaleHint": "Higher scale = better quality, larger file",
-  "export.deviceType": "Device Size",
-  "export.deviceType.mobile": "Mobile",
-  "export.deviceType.tablet": "Tablet",
-  "export.deviceType.desktop": "Desktop",
-  "export.deviceType.mobileHint": "390px width",
-  "export.deviceType.tabletHint": "768px width",
-  "export.deviceType.desktopHint": "1200px width",
-  "export.autoPagination": "Auto Pagination",
-  "export.autoPaginationHint": "Split long conversations into pages",
-  "export.maxPageHeight": "Max Page Height",
-  "export.infoMulti":
-    "Your export will be split into {{count}} pages and downloaded as a ZIP file.",
-  "export.infoSingle": "Your export will be a single PNG image.",
-  "preview.page": "Page {{current}} of {{total}}",
-  "preview.dimensions": "{{width}}px × auto",
-  "exportButton.exporting": "Exporting...",
-  "exportButton.done": "Done!",
-  "exportButton.exportCurrentPage": "Export This Page",
-  "exportButton.exportPages": "Export {{count}} Pages",
-  "exportButton.exportPng": "Export PNG",
-  "floatingButton.title": "Export to Poster",
-  "preview.title": "Preview",
-  "preview.empty": "Select messages to preview",
-  "preview.zoom.fitHeight": "Fit Height",
-  "preview.zoom.fitWidth": "Fit Width",
-  "preview.zoom.custom": "Custom Zoom",
-  "preview.zoom.decrease": "Zoom Out",
-  "preview.zoom.increase": "Zoom In",
+
+  // Code blocks
   "code.copy": "Copy",
   "code.copied": "Copied",
   "code.copyCode": "Copy code",
   "code.copiedTitle": "Copied!",
+
+  // Mermaid diagrams
   "mermaid.loading": "Loading diagram...",
   "mermaid.error": "Error",
   "mermaid.viewSource": "View source",
+
+  // Site header
   "siteHeader.viewOnGithub": "View on GitHub",
   "siteHeader.switchLanguage": "Switch language",
+
+  // Site footer
   "siteFooter.license": "Released under the {{license}} License.",
   "siteFooter.builtWithPrefix": "Built with",
   "siteFooter.builtWithSuffix": "by",
+
+  // Web navigation
   "web.nav.home": "Home",
-  "web.nav.import": "Import",
   "web.nav.docs": "Docs",
+
+  // Web footer
   "web.footer.description":
-    "Turn AI chats into share-worthy posters. Export ChatGPT, Claude, Gemini conversations as beautiful images.",
-  "web.banner.text": "🎉 ctxport is now open source!",
+    "Copy AI conversations as structured Markdown. Works with ChatGPT, Claude, Gemini, DeepSeek, Grok, and GitHub.",
+
+  // Web banner
+  "web.banner.text": "CtxPort is open source!",
   "web.banner.linkText": "Star us on GitHub",
-  "web.home.hero.title": "Turn AI Chats into Posters",
-  "web.home.hero.subtitle": "Share-worthy images in one click.",
-  "web.home.hero.desc":
-    "Export ChatGPT, Claude, Gemini conversations as beautiful, paginated PNG images. Perfect for Twitter, WeChat, blogs, and docs.",
-  "web.home.hero.getStarted": "Get Started",
-  "web.home.hero.viewGithub": "Star on GitHub",
-  "web.home.hero.demoLine":
-    "Install extension → Open ChatGPT → Click Export → Done!",
-  "web.home.problem.title": "Why ctxport?",
-  "web.home.problem.before": "Before",
-  "web.home.problem.after": "After",
-  "web.home.problems.creator.role": "Content Creator",
-  "web.home.problems.creator.pain":
-    "Screenshots look ugly, inconsistent formatting, can't fit long chats",
-  "web.home.problems.creator.gain":
-    "Beautiful posters with consistent themes, auto-pagination for any length",
-  "web.home.problems.developer.role": "Developer",
-  "web.home.problems.developer.pain":
-    "Code blocks look terrible in screenshots, syntax highlighting lost",
-  "web.home.problems.developer.gain":
-    "Shiki-powered code highlighting, preserves formatting perfectly",
-  "web.home.problems.sharer.role": "Social Sharer",
-  "web.home.problems.sharer.pain":
-    "Platform limits image size, manual cropping is tedious",
-  "web.home.problems.sharer.gain":
-    "Export at 1x/2x/3x, multi-page zip for long chats",
-  "web.home.workflows.title": "Core Features",
-  "web.home.workflows.subtitle":
-    "Everything you need for beautiful AI chat exports",
-  "web.home.workflows.theme.title": "Beautiful Themes",
-  "web.home.workflows.theme.desc": "Dark, Light, Custom Styles",
-  "web.home.workflows.pagination.title": "Smart Pagination",
-  "web.home.workflows.pagination.desc": "Auto-split Long Chats",
-  "web.home.workflows.export.title": "One-Click Export",
-  "web.home.workflows.export.desc": "PNG at 1x/2x/3x DPI",
-  "web.home.workflows.platform.title": "Multi-Platform",
-  "web.home.workflows.platform.desc": "ChatGPT, Claude, Gemini",
-  "web.home.workflows.extension.title": "Browser Extension",
-  "web.home.workflows.extension.desc": "Export from Any Chat",
-  "web.home.workflows.webapp.title": "Web App",
-  "web.home.workflows.webapp.desc": "Share Link & Manual Input",
-  "web.home.cta.title": "Ready to share your AI chats?",
-  "web.home.cta.desc":
-    "Install the extension or try the web app. Start creating beautiful posters today.",
-  "web.home.cta.button": "Get Started Now",
-  "web.extension.title": "Browser Extension",
-  "web.extension.subtitle":
-    "Export AI chats with one click - no copy-paste needed",
-  "web.extension.download": "Download",
-  "web.extension.comingSoon": "Coming Soon",
-  "web.extension.tryWebApp": "Or try the Web App",
-  "web.extension.features.export.title": "One-Click Export",
-  "web.extension.features.export.desc":
-    "Export directly from ChatGPT, Claude, or Gemini",
-  "web.extension.features.themes.title": "Beautiful Themes",
-  "web.extension.features.themes.desc":
-    "Multiple themes with customizable styles",
-  "web.extension.features.privacy.title": "Privacy First",
-  "web.extension.features.privacy.desc":
-    "All processing happens locally in your browser",
-  "web.import.badge": "AI Chat to Poster",
-  "web.import.title": "Import Conversation",
-  "web.import.subtitle": "Paste a share link or create from scratch",
-  "web.import.sectionTitle": "Import from Share Link",
-  "web.import.sectionDesc": "Paste your ChatGPT, Claude, or Gemini share link",
-  "web.import.errorEmpty": "Please enter a share link",
-  "web.import.errorParse": "Failed to parse share link",
-  "web.import.errorParseFallback": "Failed to parse link",
-  "web.import.parse": "Parse & Continue",
-  "web.import.parsing": "Parsing...",
-  "web.import.or": "or",
-  "web.import.manualTitle": "Manual Builder",
-  "web.import.manualDesc": "Create from scratch",
-  "web.import.pasteTitle": "Paste Text",
-  "web.import.pasteDesc": "Import from clipboard",
-  "web.import.privacy":
-    "Your conversations are processed locally. We never store your data.",
-  "web.manual.back": "Back to Import",
-  "web.manual.title": "Manual Builder",
-  "web.manual.subtitle": "Create a conversation from scratch",
-  "web.manual.messageCount": "{{count}} message{{suffix}}",
-  "web.manual.roleUser": "User",
-  "web.manual.roleAssistant": "Assistant",
-  "web.manual.placeholder": "Enter {{role}} message (supports Markdown)...",
-  "web.manual.addMessage": "Add Message",
-  "web.manual.tip": "Drag to reorder messages",
-  "web.manual.continue": "Continue to Editor",
-  "web.paste.back": "Back to Import",
-  "web.paste.title": "Paste Import",
-  "web.paste.subtitle":
-    "Paste your conversation text and we'll detect the format",
-  "web.paste.placeholder":
-    "User: Hello, can you help me?\n\nAssistant: Of course! What do you need help with?\n\nUser: I need to...\n\nAssistant: Sure, here's how...",
-  "web.paste.errorEmpty": "Please paste some text",
-  "web.paste.errorParse": "Failed to parse text",
-  "web.paste.formatTitle": "Supported Formats",
-  "web.paste.formatDesc": "Start each message with a role prefix, for example:",
-  "web.paste.parse": "Parse & Continue",
-  "web.paste.parsing": "Parsing...",
-  "web.paste.tipsTitle": "Tips",
-  "web.paste.tips.0": "Supports ChatGPT/Claude/Gemini exports",
-  "web.paste.tips.1": "Paste long text and we'll split it automatically",
-  "web.paste.tips.2": "Markdown and code blocks are supported",
-  "web.paste.examplesTitle": "Format Examples",
-  "web.paste.insert": "Insert Example",
-  "web.paste.quickInsertTitle": "Quick insert format",
-  "web.paste.quickInsertHint":
-    "Click to insert format, or paste text with markers directly",
-  "web.paste.useManual": "Use Manual Builder",
-  "web.paste.statsChars": "{{count}} chars",
-  "web.paste.statsLines": "{{count}} lines",
-  "web.paste.footerBack": "Back to Import",
-  "web.paste.footerNext": "Continue to Editor",
-  "web.paste.example.user.prefix": "User:",
-  "web.paste.example.user.desc": "User message",
-  "web.paste.example.assistant.prefix": "Assistant:",
-  "web.paste.example.assistant.desc": "AI response",
-  "web.paste.example.human.prefix": "Human:",
-  "web.paste.example.human.desc": "Alternative user",
-  "web.paste.example.ai.prefix": "AI:",
-  "web.paste.example.ai.desc": "Alternative AI",
-  "web.editor.back": "Back to Import",
-  "web.editor.settings": "Settings",
-  "web.editor.loading": "Loading...",
-  "web.extPreview.title": "Extension Preview",
-  "web.extPreview.subtitle":
-    "Floating button + modal, powered by editor context data.",
-  "web.extPreview.devOnly": "Dev Only",
+
+  // Web docs
   "web.docs.editLink": "Edit this page on GitHub",
   "web.docs.feedback": "Question? Give us feedback →",
-  "api.parseShareLink.rateLimit": "Too many requests. Please try again later.",
-  "api.parseShareLink.invalidInput": "Please provide a valid share link URL",
-  "api.parseShareLink.invalidChatgpt": "Invalid ChatGPT share link format",
-  "api.parseShareLink.invalidClaude": "Invalid Claude share link format",
-  "api.parseShareLink.invalidGemini": "Invalid Gemini share link format",
-  "api.parseShareLink.unsupportedDomain": "Unsupported share link domain",
-  "api.parseShareLink.invalidUrl": "Invalid URL format",
-  "api.parseShareLink.unsupportedUrl": "Unsupported URL",
-  "api.parseShareLink.parseFailed":
-    "Failed to parse share link. The page may require browser authentication.",
-  "api.parseShareLink.networkError":
-    "Failed to process the share link. Please try again.",
-  "api.parseShareLink.ready": "Share link parsing API is ready",
+
+  // ─── Landing Page: Hero ───
+  "web.home.hero.title":
+    "One click. Structured Markdown. Any AI conversation.",
+  "web.home.hero.subtitle":
+    "Copy conversations from ChatGPT, Claude, Gemini, DeepSeek, Grok, and GitHub as clean, structured Context Bundles — ready to paste anywhere.",
+  "web.home.hero.install": "Install Extension",
+  "web.home.hero.star": "Star on GitHub",
+  "web.home.hero.platforms": "Works with",
+
+  // ─── Landing Page: Problem ───
+  "web.home.problem.title": "The Problem",
+  "web.home.problem.scenario":
+    "You just spent 45 minutes in a deep conversation with ChatGPT. Now you need Claude to implement it. What do you do?",
+  "web.home.problem.ctrlC.title": "Ctrl+A, Ctrl+C",
+  "web.home.problem.ctrlC.desc":
+    "HTML residue, broken formatting, invisible characters everywhere.",
+  "web.home.problem.manual.title": "Copy one by one",
+  "web.home.problem.manual.desc":
+    "Life is too short to manually copy 47 messages.",
+  "web.home.problem.screenshot.title": "Take screenshots",
+  "web.home.problem.screenshot.desc":
+    "A graveyard of knowledge — unsearchable, unpasteable, useless.",
+
+  // ─── Landing Page: Comparison ───
+  "web.home.compare.title": "Before & After",
+  "web.home.compare.without": "Without CtxPort",
+  "web.home.compare.with": "With CtxPort",
+  "web.home.compare.copy.without": "Broken HTML, lost formatting",
+  "web.home.compare.copy.with": "Clean Markdown in one click",
+  "web.home.compare.migrate.without":
+    "Re-type or lose context between AI tools",
+  "web.home.compare.migrate.with":
+    "Paste the Context Bundle into any AI tool",
+  "web.home.compare.save.without": "Screenshots scattered across folders",
+  "web.home.compare.save.with":
+    "Structured Markdown files with frontmatter metadata",
+  "web.home.compare.share.without": "Send 20 screenshots to your teammate",
+  "web.home.compare.share.with":
+    "Share one Markdown file, fully searchable",
+  "web.home.compare.code.without":
+    "Code blocks lose syntax highlighting and indentation",
+  "web.home.compare.code.with":
+    "Fenced code blocks with language tags preserved",
+
+  // ─── Landing Page: Trust (core advantages) ───
+  "web.home.trust.title": "Privacy by Design",
+  "web.home.trust.noAccount.title": "No Account Required",
+  "web.home.trust.noAccount.desc": "Install and use immediately. No sign-up, no login, no email.",
+  "web.home.trust.offline.title": "Works Offline",
+  "web.home.trust.offline.desc": "All processing happens in your browser. No internet needed after install.",
+  "web.home.trust.zeroUpload.title": "Zero Data Upload",
+  "web.home.trust.zeroUpload.desc": "Your conversations never leave your machine. Period.",
+  "web.home.trust.local.title": "100% Local",
+  "web.home.trust.local.desc": "No servers, no cloud, no telemetry. Everything stays on your device.",
+  "web.home.trust.permissions.title": "Minimal Permissions",
+  "web.home.trust.permissions.desc":
+    "Only requests access to supported AI platform domains. Nothing else.",
+  "web.home.trust.openSource.title": "Open Source",
+  "web.home.trust.openSource.desc": "MIT licensed. Read every line of code on GitHub.",
+
+  // ─── Landing Page: How It Works ───
+  "web.home.how.title": "How It Works",
+  "web.home.how.subtitle":
+    "No configuration. No sign-up. No cloud.",
+  "web.home.how.step1.title": "Browse",
+  "web.home.how.step1.desc": "Open any supported AI platform and start a conversation.",
+  "web.home.how.step2.title": "Click",
+  "web.home.how.step2.desc":
+    "Click the copy button in the chat or use the sidebar list to copy without opening.",
+  "web.home.how.step3.title": "Paste",
+  "web.home.how.step3.desc":
+    "Paste the structured Markdown into any AI tool, editor, or note app.",
+
+  // ─── Landing Page: Features ───
+  "web.home.features.title": "Features",
+  "web.home.features.inChat.title": "In-Chat Copy",
+  "web.home.features.inChat.desc":
+    "A copy button appears right in the conversation. One click to copy the current chat as Markdown.",
+  "web.home.features.sidebar.title": "Sidebar List Copy",
+  "web.home.features.sidebar.desc":
+    "Copy any conversation from the sidebar list — without even opening it. The killer feature for power users.",
+  "web.home.features.sidebar.badge": "Unique",
+  "web.home.features.keyboard.title": "Keyboard Shortcut",
+  "web.home.features.keyboard.desc":
+    "Press Alt+Shift+C to instantly copy the current conversation.",
+  "web.home.features.format.title": "Context Bundle Format",
+  "web.home.features.format.desc":
+    "Outputs a structured Markdown file with YAML frontmatter — title, source, platform, timestamp — all metadata preserved.",
+
+  // ─── Landing Page: Context Bundle ───
+  "web.home.bundle.title": "The Context Bundle Format",
+  "web.home.bundle.desc":
+    "Every conversation is copied as a structured Markdown document with YAML frontmatter metadata.",
+
+  // ─── Landing Page: Copy Formats ───
+  "web.home.formats.title": "Copy Formats",
+  "web.home.formats.desc":
+    "Choose the format that fits your workflow. Right-click or use the options menu to pick.",
+  "web.home.formats.format": "Format",
+  "web.home.formats.includes": "What's Included",
+  "web.home.formats.useCase": "Best For",
+  "web.home.formats.full.name": "Full",
+  "web.home.formats.full.includes": "Frontmatter + all messages (user & assistant)",
+  "web.home.formats.full.useCase": "Context migration between AI tools",
+  "web.home.formats.userOnly.name": "User Only",
+  "web.home.formats.userOnly.includes": "Frontmatter + user messages only",
+  "web.home.formats.userOnly.useCase": "Re-prompting a different AI with your questions",
+  "web.home.formats.codeOnly.name": "Code Only",
+  "web.home.formats.codeOnly.includes": "All fenced code blocks extracted",
+  "web.home.formats.codeOnly.useCase": "Grabbing code snippets from a conversation",
+  "web.home.formats.compact.name": "Compact",
+  "web.home.formats.compact.includes": "Messages without frontmatter metadata",
+  "web.home.formats.compact.useCase": "Quick paste into notes or docs",
+
+  // ─── Landing Page: Install ───
+  "web.home.install.title": "Get Started in 2 Minutes",
+  "web.home.install.step1": "Go to GitHub Releases and download ctxport-chrome-mv3.zip",
+  "web.home.install.step2": "Unzip the downloaded file",
+  "web.home.install.step3": "Open Chrome and navigate to chrome://extensions",
+  "web.home.install.step4": 'Enable "Developer mode" in the top right corner',
+  "web.home.install.step5": 'Click "Load unpacked"',
+  "web.home.install.step6": "Select the unzipped folder",
+  "web.home.install.step7":
+    "Open any supported AI platform and start copying!",
+  "web.home.install.download": "Download from GitHub Releases",
+
+  // ─── Landing Page: Platforms ───
+  "web.home.platforms.title": "Supported Platforms",
+  "web.home.platforms.chatgpt.name": "ChatGPT",
+  "web.home.platforms.chatgpt.desc": "Copy conversations from chat.openai.com and chatgpt.com",
+  "web.home.platforms.claude.name": "Claude",
+  "web.home.platforms.claude.desc": "Copy conversations from claude.ai",
+  "web.home.platforms.gemini.name": "Gemini",
+  "web.home.platforms.gemini.desc": "Copy conversations from gemini.google.com",
+  "web.home.platforms.deepseek.name": "DeepSeek",
+  "web.home.platforms.deepseek.desc": "Copy conversations from chat.deepseek.com",
+  "web.home.platforms.grok.name": "Grok",
+  "web.home.platforms.grok.desc": "Copy conversations from grok.com",
+  "web.home.platforms.github.name": "GitHub Copilot",
+  "web.home.platforms.github.desc": "Copy conversations from github.com Copilot chat",
+
+  // ─── Landing Page: CTA ───
+  "web.home.cta.title": "Your AI conversations deserve a better clipboard.",
+  "web.home.cta.install": "Install Extension",
+  "web.home.cta.star": "Star on GitHub",
 } as const;
 
 export default en;

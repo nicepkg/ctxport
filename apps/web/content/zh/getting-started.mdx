@@ -1,0 +1,66 @@
+---
+title: "快速开始"
+---
+
+# 快速开始
+
+本指南将带你完成 CtxPort 的安装和第一次使用。即使你从未手动安装过浏览器扩展，也能在 2 分钟内搞定。
+
+## 系统要求
+
+- **Google Chrome** 88 或更高版本（也支持 Edge、Brave、Arc 等 Chromium 内核浏览器）
+- Windows、macOS 或 Linux 电脑
+
+## 安装 CtxPort
+
+CtxPort 暂未上架 Chrome Web Store，你可以从 GitHub 直接安装。
+
+### 第 1 步：下载
+
+打开 [CtxPort Releases](https://github.com/nicepkg/ctxport/releases) 页面，找到最新版本，下载名为 **`ctxport-chrome-mv3.zip`** 的文件。
+
+### 第 2 步：解压
+
+找到下载的 ZIP 文件并解压。你会看到一个文件夹，里面包含 `manifest.json` 文件 — 这就是扩展程序。
+
+### 第 3 步：打开 Chrome 扩展管理页
+
+打开 Chrome 浏览器，在地址栏输入 `chrome://extensions`，然后按回车。
+
+### 第 4 步：开启开发者模式
+
+在扩展管理页的右上角，你会看到 **开发者模式（Developer mode）** 开关。把它打开。
+
+### 第 5 步：加载扩展
+
+点击左上角出现的 **加载已解压的扩展程序（Load unpacked）** 按钮。在弹出的文件选择器中，选择第 2 步解压出来的文件夹（就是包含 `manifest.json` 的那个）。
+
+### 第 6 步：完成
+
+CtxPort 安装成功！你会在浏览器工具栏看到它的图标。如果图标没有显示，点击工具栏的拼图图标，然后固定 CtxPort。
+
+## 第一次使用
+
+1. 打开任意支持的平台 — [ChatGPT](https://chatgpt.com)、[Claude](https://claude.ai)、[Gemini](https://gemini.google.com) 等
+2. 开始新对话或打开已有对话
+3. 你会看到 CtxPort 的复制按钮出现在对话附近
+4. 点击按钮 — 或按 **Alt+Shift+C** — 复制对话
+5. 打开任意文本编辑器或笔记应用，粘贴
+
+你会得到干净、结构化的 Markdown，包含 YAML frontmatter 头部和完整的对话内容。关于输出格式的详情，请看 [Context Bundle 格式](/docs/context-bundle)。
+
+## 更新 CtxPort
+
+当有新版本发布时：
+
+1. 从 [GitHub Releases](https://github.com/nicepkg/ctxport/releases) 下载新版 `ctxport-chrome-mv3.zip`
+2. 解压到同一位置（或新文件夹）
+3. 打开 `chrome://extensions`
+4. 如果解压到了新文件夹，先移除旧扩展，再点 **加载已解压的扩展程序** 重新加载
+5. 如果解压到了同一文件夹，直接点击 CtxPort 卡片上的 **刷新** 图标即可
+
+## 下一步
+
+- [功能介绍](/docs/features) — 了解所有复制模式和选项
+- [支持平台](/docs/supported-platforms) — 查看哪些 AI 平台可以使用
+- [键盘快捷键](/docs/keyboard-shortcuts) — 更快地复制

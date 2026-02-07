@@ -1,0 +1,96 @@
+---
+title: "Context Bundle 格式"
+---
+
+# Context Bundle
+
+Context Bundle 是 CtxPort 复制对话时产出的结构化 Markdown 格式。它将机器可读的元数据和人类可读的内容结合在一起。
+
+## 格式概览
+
+每个 Context Bundle 由两部分组成：
+
+1. **YAML frontmatter** — 对话的元数据
+2. **Markdown 正文** — 实际的对话内容
+
+## Frontmatter 字段
+
+Frontmatter 位于输出顶部的 `---` 分隔符之间：
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `ctxport` | 格式版本 | `v2` |
+| `source` | 对话来源平台 | `chatgpt`、`claude`、`gemini`、`deepseek`、`grok`、`github` |
+| `url` | 原始对话 URL | `https://chatgpt.com/c/abc123` |
+| `title` | 对话标题 | `Debug React Hook` |
+| `date` | 复制时间（ISO 8601） | `2025-01-15T10:30:00Z` |
+| `nodes` | 对话中的消息数量 | `12` |
+| `format` | 使用的复制格式 | `full`、`user-only`、`code-only`、`compact` |
+
+## 正文格式
+
+对话正文使用 `## User` 和 `## Assistant` 标题来分隔消息。所有原始 Markdown 格式 — 代码块、列表、加粗、链接 — 都会被保留。
+
+## 完整示例
+
+```markdown
+---
+ctxport: v2
+source: chatgpt
+url: https://chatgpt.com/c/abc123
+title: Fix TypeScript Error
+date: 2025-01-15T10:30:00Z
+nodes: 4
+format: full
+---
+
+## User
+
+我遇到了一个 TypeScript 错误："Property 'name' does not exist on type '{}'".
+这是我的代码：
+
+\```typescript
+const user = {};
+console.log(user.name);
+\```
+
+## Assistant
+
+这个错误是因为 TypeScript 将 `user` 的类型推断为 `{}`（空对象），它没有任何属性。你需要定义一个类型：
+
+\```typescript
+interface User {
+  name: string;
+}
+
+const user: User = { name: "Alice" };
+console.log(user.name);
+\```
+
+## User
+
+搞定了，谢谢！如果 name 是可选的呢？
+
+## Assistant
+
+用问号标记属性为可选：
+
+\```typescript
+interface User {
+  name?: string;
+}
+
+const user: User = {};
+console.log(user.name); // undefined，但不会报错
+\```
+```
+
+## 为什么用这种格式？
+
+**人类可读。** 它就是 Markdown。在任何文本编辑器、笔记应用或文档工具中打开都很好看。
+
+**机器可读。** YAML frontmatter 让脚本和 AI 工具可以轻松解析元数据 — 来源、日期、消息数量 — 不需要用正则表达式硬解析。
+
+**Git 友好。** Context Bundle 是纯文本，可以存入 git 仓库、做 diff、用 grep 搜索。它与开发者生态中的每个工具兼容。
+
+**AI 可移植。** 将 Context Bundle 粘贴到任何 AI 助手中，它都能立即理解对话结构。`## User` / `## Assistant` 标题与大多数 AI 工具理解对话的方式一致。
