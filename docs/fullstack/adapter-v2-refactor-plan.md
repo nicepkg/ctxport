@@ -404,7 +404,6 @@ export function serializeContentBundle(
     meta.date = bundle.createdAt ?? new Date().toISOString();
     meta.content_type = bundle.contentType;
     meta.nodes = bundle.nodes.length;
-    meta.tokens = formatTokenCount(tokens);
     sections.push(buildFrontmatter(meta));
   }
 

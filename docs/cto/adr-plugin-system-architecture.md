@@ -797,7 +797,6 @@ function serializeContentBundle(
     if (bundle.title) meta.title = bundle.title;
     meta.date = bundle.source.extractedAt;
     meta.nodes = bundle.nodes.length;
-    meta.tokens = formatTokenCount(tokens);
     if (bundle.tags?.length) meta.tags = bundle.tags.join(", ");
     sections.push(buildFrontmatter(meta));
   }

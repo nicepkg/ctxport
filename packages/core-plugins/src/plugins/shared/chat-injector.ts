@@ -121,9 +121,10 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       container.style.position = "absolute";
       container.style.right = "36px";
       container.style.top = "50%";
-      container.style.transform = "translateY(-50%)";
       container.style.opacity = "0";
-      container.style.transition = "opacity 150ms ease";
+      container.style.transform = "translateY(-50%) scale(0.85)";
+      container.style.transition = "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
+      container.style.pointerEvents = "none";
       container.style.zIndex = "10";
 
       const parent = link.closest("li") ?? link;
@@ -135,9 +136,15 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
         parent.appendChild(container);
         parent.addEventListener("mouseenter", () => {
           container.style.opacity = "1";
+          container.style.transform = "translateY(-50%) scale(1)";
+          container.style.transition = "opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.22, 1.2, 0.36, 1)";
+          container.style.pointerEvents = "auto";
         });
         parent.addEventListener("mouseleave", () => {
           container.style.opacity = "0";
+          container.style.transform = "translateY(-50%) scale(0.85)";
+          container.style.transition = "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
+          container.style.pointerEvents = "none";
         });
       }
 

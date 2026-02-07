@@ -5,6 +5,12 @@ interface BatchCheckboxProps {
   conversationId: string;
 }
 
+const MOTION = {
+  fast: "150ms",
+  easeOut: "cubic-bezier(0.16, 1, 0.3, 1)",
+  spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+} as const;
+
 export function BatchCheckbox({ conversationId }: BatchCheckboxProps) {
   const { state, selected, toggleSelection } = useBatchContext();
 
@@ -39,7 +45,7 @@ export function BatchCheckbox({ conversationId }: BatchCheckboxProps) {
           : "transparent",
         cursor: "pointer",
         flexShrink: 0,
-        transition: "all 150ms ease",
+        transition: `background-color ${MOTION.fast} ${MOTION.easeOut}, border-color ${MOTION.fast} ${MOTION.easeOut}, transform ${MOTION.fast} ${MOTION.spring}`,
       }}
     >
       {isSelected && (

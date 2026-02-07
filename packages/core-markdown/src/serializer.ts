@@ -41,7 +41,6 @@ export function serializeConversation(
   const body = messageParts.join("\n\n");
 
   const messageCount = bundle.nodes.length;
-  const tokens = estimateTokens(body);
 
   const sections: string[] = [];
 
@@ -61,7 +60,6 @@ export function serializeConversation(
     }
     meta.date = bundle.source.extractedAt ?? new Date().toISOString();
     meta.nodes = messageCount;
-    meta.tokens = formatTokenCount(tokens);
     meta.format = format;
 
     sections.push(buildFrontmatter(meta));
@@ -69,8 +67,11 @@ export function serializeConversation(
 
   sections.push(body);
 
+  const markdown = sections.join("\n\n");
+  const tokens = estimateTokens(markdown);
+
   return {
-    markdown: sections.join("\n\n"),
+    markdown,
     messageCount,
     estimatedTokens: tokens,
   };

@@ -29,7 +29,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@ctxport/core-schema": "workspace:*"
+    "@ctxport/core-schema": "workspace:*",
+    "tokenx": "^1.3.0"
   },
   "devDependencies": {
     "@types/node": "catalog:tooling",

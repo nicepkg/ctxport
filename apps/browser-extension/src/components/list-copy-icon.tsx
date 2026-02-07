@@ -7,6 +7,16 @@ import {
 import { writeToClipboard } from "~/lib/utils";
 import { ContextMenu } from "./context-menu";
 
+const MOTION = {
+  instant: '100ms',
+  fast: '150ms',
+  normal: '250ms',
+  easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  easeIn: 'cubic-bezier(0.55, 0, 1, 0.45)',
+  spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  springSubtle: 'cubic-bezier(0.22, 1.2, 0.36, 1)',
+} as const;
+
 type IconState = "idle" | "loading" | "success" | "error";
 
 interface ListCopyIconProps {
@@ -20,6 +30,9 @@ export function ListCopyIcon({
 }: ListCopyIconProps) {
   const [state, setState] = useState<IconState>("idle");
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [iconAnimated, setIconAnimated] = useState(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -27,6 +40,18 @@ export function ListCopyIcon({
       mountedRef.current = false;
     };
   }, []);
+
+  // Trigger icon scale-in animation on success/error
+  useEffect(() => {
+    if (state === "success" || state === "error") {
+      setIconAnimated(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIconAnimated(true);
+        });
+      });
+    }
+  }, [state]);
 
   const doCopy = useCallback(
     async (format: BundleFormatType = "full") => {
@@ -89,32 +114,47 @@ export function ListCopyIcon({
     [],
   );
 
+  const isIdle = state === "idle";
+  const isLoading = state === "loading";
+
+  const buttonStyle: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 28,
+    height: 28,
+    padding: 0,
+    border: "none",
+    borderRadius: 6,
+    background: hovered && isIdle ? 'rgba(128, 128, 128, 0.08)' : 'transparent',
+    cursor: isLoading ? "wait" : "pointer",
+    color: iconColor(state),
+    opacity: isLoading ? 0.6 : (isIdle && !hovered ? 0.7 : 1),
+    transform: pressed && (isIdle || isLoading)
+      ? 'scale(0.9)'
+      : (hovered && isIdle ? 'scale(1.06)' : 'scale(1)'),
+    transition: pressed
+      ? `transform ${MOTION.instant} ${MOTION.easeIn}, opacity ${MOTION.fast} ${MOTION.easeOut}, color ${MOTION.fast} ${MOTION.easeOut}, background ${MOTION.fast} ${MOTION.easeOut}`
+      : `transform ${MOTION.fast} ${MOTION.spring}, opacity ${MOTION.fast} ${MOTION.easeOut}, color ${MOTION.fast} ${MOTION.easeOut}, background ${MOTION.fast} ${MOTION.easeOut}`,
+    flexShrink: 0,
+  };
+
   return (
     <>
       <button
         type="button"
         onClick={handleClick}
         onContextMenu={handleContextMenu}
-        disabled={state === "loading"}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => { setHovered(false); setPressed(false); }}
+        onMouseDown={() => setPressed(true)}
+        onMouseUp={() => setPressed(false)}
+        disabled={isLoading}
         title="Copy this conversation (CtxPort)"
         className="ctxport-list-copy-icon"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 28,
-          height: 28,
-          padding: 0,
-          border: "none",
-          borderRadius: 4,
-          background: "transparent",
-          cursor: state === "loading" ? "wait" : "pointer",
-          color: iconColor(state),
-          transition: "color 150ms ease, opacity 150ms ease",
-          flexShrink: 0,
-        }}
+        style={buttonStyle}
       >
-        <SmallIcon state={state} />
+        <SmallIcon state={state} animated={iconAnimated} />
       </button>
       {menu && (
         <ContextMenu
@@ -134,34 +174,74 @@ export function ListCopyIcon({
 function iconColor(state: IconState): string {
   switch (state) {
     case "success":
-      return "#16a34a";
+      return "#059669";
     case "error":
-      return "#ea580c";
+      return "#dc2626";
     default:
-      return "var(--text-secondary, currentColor)";
+      return "currentColor";
   }
 }
 
-function SmallIcon({ state }: { state: IconState }) {
+function SmallIcon({ state, animated }: { state: IconState; animated: boolean }) {
   if (state === "loading") {
     return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-          <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle
+          cx="12" cy="12" r="9"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeOpacity="0.2"
+        />
+        <path
+          d="M12 3a9 9 0 0 1 9 9"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0 12 12"
+            to="360 12 12"
+            dur="0.8s"
+            repeatCount="indefinite"
+          />
         </path>
       </svg>
     );
   }
   if (state === "success") {
     return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16" height="16" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round"
+        style={{
+          transform: animated ? 'scale(1)' : 'scale(0.5)',
+          opacity: animated ? 1 : 0,
+          transition: animated
+            ? `transform ${MOTION.normal} ${MOTION.spring}, opacity ${MOTION.fast} ${MOTION.easeOut}`
+            : 'none',
+        }}
+      >
         <polyline points="20 6 9 17 4 12" />
       </svg>
     );
   }
   if (state === "error") {
     return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16" height="16" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round"
+        style={{
+          transform: animated ? 'scale(1)' : 'scale(0.5)',
+          opacity: animated ? 1 : 0,
+          transition: animated
+            ? `transform ${MOTION.fast} ${MOTION.easeOut}, opacity ${MOTION.fast} ${MOTION.easeOut}`
+            : 'none',
+        }}
+      >
         <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
         <line x1="12" y1="9" x2="12" y2="13" />
         <line x1="12" y1="17" x2="12.01" y2="17" />

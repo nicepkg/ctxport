@@ -114,39 +114,58 @@ export default function App() {
   );
 }
 
+const FLOATING_MOTION = {
+  normal: '250ms',
+  easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
+  springSubtle: 'cubic-bezier(0.22, 1.2, 0.36, 1)',
+} as const;
+
 /** Floating copy button rendered inside Shadow DOM overlay as fallback */
 function FloatingCopyButton({
   onToast,
 }: {
   onToast: (message: string, type: "success" | "error") => void;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: "fixed",
-        bottom: 24,
-        right: 24,
+        bottom: 20,
+        right: 20,
         zIndex: 99999,
         display: "flex",
         alignItems: "center",
         gap: 8,
-        background: "var(--bg-primary, #1a1a2e)",
-        borderRadius: 12,
-        padding: "8px 12px",
-        boxShadow:
-          "0 4px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)",
-        border: "1px solid var(--border-color, rgba(255,255,255,0.1))",
+        borderRadius: 14,
+        padding: "6px 6px 6px 14px",
+        backdropFilter: "blur(16px) saturate(180%)",
+        WebkitBackdropFilter: "blur(16px) saturate(180%)",
+        backgroundColor: "rgba(255, 255, 255, 0.85)",
+        boxShadow: hovered
+          ? "0 6px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.06)"
+          : "0 4px 20px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.05)",
+        border: "1px solid rgba(0, 0, 0, 0.06)",
+        transform: hovered ? "scale(1.02)" : "scale(1)",
+        transition: `transform ${FLOATING_MOTION.normal} ${FLOATING_MOTION.springSubtle}, box-shadow ${FLOATING_MOTION.normal} ${FLOATING_MOTION.easeOut}`,
       }}
     >
       <span
         style={{
-          fontSize: 12,
-          color: "var(--text-secondary, #a0a0b0)",
-          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontSize: 11,
+          fontWeight: 600,
+          fontFamily:
+            "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          letterSpacing: "0.02em",
+          color: "rgba(0, 0, 0, 0.45)",
           userSelect: "none",
+          textTransform: "uppercase",
         }}
       >
-        CtxPort
+        CTXPORT
       </span>
       <CopyButton onToast={onToast} />
     </div>
