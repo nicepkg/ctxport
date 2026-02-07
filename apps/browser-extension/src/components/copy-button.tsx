@@ -1,22 +1,30 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { useCopyConversation, type CopyState } from "~/hooks/use-copy-conversation";
-import { EXTENSION_WINDOW_EVENT } from "~/constants/extension-runtime";
-import { ContextMenu } from "./context-menu";
 import type { BundleFormatType } from "@ctxport/core-markdown";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { ContextMenu } from "./context-menu";
+import { EXTENSION_WINDOW_EVENT } from "~/constants/extension-runtime";
+import {
+  useCopyConversation,
+  type CopyState,
+} from "~/hooks/use-copy-conversation";
 
 const MOTION = {
-  instant: '100ms',
-  fast: '150ms',
-  normal: '250ms',
-  smooth: '350ms',
-  easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  easeIn: 'cubic-bezier(0.55, 0, 1, 0.45)',
-  spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-  springSubtle: 'cubic-bezier(0.22, 1.2, 0.36, 1)',
+  instant: "100ms",
+  fast: "150ms",
+  normal: "250ms",
+  smooth: "350ms",
+  easeOut: "cubic-bezier(0.16, 1, 0.3, 1)",
+  easeIn: "cubic-bezier(0.55, 0, 1, 0.45)",
+  spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+  springSubtle: "cubic-bezier(0.22, 1.2, 0.36, 1)",
 } as const;
 
 interface CopyButtonProps {
-  onToast: (data: { title: string; subtitle?: string; type: "success" | "error"; isLarge?: boolean }) => void;
+  onToast: (data: {
+    title: string;
+    subtitle?: string;
+    type: "success" | "error";
+    isLarge?: boolean;
+  }) => void;
 }
 
 export function CopyButton({ onToast }: CopyButtonProps) {
@@ -37,17 +45,15 @@ export function CopyButton({ onToast }: CopyButtonProps) {
       void copy("full");
     };
     window.addEventListener(EXTENSION_WINDOW_EVENT.COPY_CURRENT, handler);
-    return () => window.removeEventListener(EXTENSION_WINDOW_EVENT.COPY_CURRENT, handler);
+    return () =>
+      window.removeEventListener(EXTENSION_WINDOW_EVENT.COPY_CURRENT, handler);
   }, [copy]);
 
-  const handleContextMenu = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setMenu({ x: e.clientX, y: e.clientY });
-    },
-    [],
-  );
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMenu({ x: e.clientX, y: e.clientY });
+  }, []);
 
   const handleFormatSelect = useCallback(
     async (format: BundleFormatType) => {
@@ -74,10 +80,12 @@ export function CopyButton({ onToast }: CopyButtonProps) {
     prevStateRef.current = state;
 
     if (state === "success" && result) {
-      const tokenStr = result.estimatedTokens >= 1000
-        ? `~${(result.estimatedTokens / 1000).toFixed(1)}K`
-        : `~${result.estimatedTokens}`;
-      const isLarge = result.messageCount >= 50 || result.estimatedTokens >= 10000;
+      const tokenStr =
+        result.estimatedTokens >= 1000
+          ? `~${(result.estimatedTokens / 1000).toFixed(1)}K`
+          : `~${result.estimatedTokens}`;
+      const isLarge =
+        result.messageCount >= 50 || result.estimatedTokens >= 10000;
       onToast({
         title: "CtxPort \u00b7 Copied to clipboard",
         subtitle: `${result.messageCount} messages \u00b7 ${tokenStr} tokens`,
@@ -106,13 +114,16 @@ export function CopyButton({ onToast }: CopyButtonProps) {
     padding: 0,
     border: "none",
     borderRadius: 8,
-    background: hovered && isIdle ? 'rgba(128, 128, 128, 0.08)' : 'transparent',
+    background: hovered && isIdle ? "rgba(128, 128, 128, 0.08)" : "transparent",
     cursor: isLoading ? "wait" : "pointer",
     color: iconColor(state),
-    opacity: isLoading ? 0.6 : (isIdle && !hovered ? 0.7 : 1),
-    transform: pressed && (isIdle || isLoading)
-      ? 'scale(0.88)'
-      : (hovered && isIdle ? 'scale(1.08)' : 'scale(1)'),
+    opacity: isLoading ? 0.6 : isIdle && !hovered ? 0.7 : 1,
+    transform:
+      pressed && (isIdle || isLoading)
+        ? "scale(0.88)"
+        : hovered && isIdle
+          ? "scale(1.08)"
+          : "scale(1)",
     transition: pressed
       ? `transform ${MOTION.instant} ${MOTION.easeIn}, opacity ${MOTION.fast} ${MOTION.easeOut}, color ${MOTION.fast} ${MOTION.easeOut}, background ${MOTION.fast} ${MOTION.easeOut}`
       : `transform ${MOTION.fast} ${MOTION.spring}, opacity ${MOTION.fast} ${MOTION.easeOut}, color ${MOTION.fast} ${MOTION.easeOut}, background ${MOTION.fast} ${MOTION.easeOut}`,
@@ -125,7 +136,10 @@ export function CopyButton({ onToast }: CopyButtonProps) {
         onClick={handleClick}
         onContextMenu={handleContextMenu}
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => { setHovered(false); setPressed(false); }}
+        onMouseLeave={() => {
+          setHovered(false);
+          setPressed(false);
+        }}
         onMouseDown={() => setPressed(true)}
         onMouseUp={() => setPressed(false)}
         disabled={isLoading}
@@ -158,12 +172,20 @@ function iconColor(state: CopyState): string {
   }
 }
 
-function IconForState({ state, animated }: { state: CopyState; animated: boolean }) {
+function IconForState({
+  state,
+  animated,
+}: {
+  state: CopyState;
+  animated: boolean;
+}) {
   if (state === "loading") {
     return (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
         <circle
-          cx="12" cy="12" r="9"
+          cx="12"
+          cy="12"
+          r="9"
           stroke="currentColor"
           strokeWidth="2"
           strokeOpacity="0.2"
@@ -190,15 +212,20 @@ function IconForState({ state, animated }: { state: CopyState; animated: boolean
   if (state === "success") {
     return (
       <svg
-        width="18" height="18" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         style={{
-          transform: animated ? 'scale(1)' : 'scale(0.5)',
+          transform: animated ? "scale(1)" : "scale(0.5)",
           opacity: animated ? 1 : 0,
           transition: animated
             ? `transform ${MOTION.normal} ${MOTION.spring}, opacity ${MOTION.fast} ${MOTION.easeOut}`
-            : 'none',
+            : "none",
         }}
       >
         <polyline points="20 6 9 17 4 12" />
@@ -209,15 +236,20 @@ function IconForState({ state, animated }: { state: CopyState; animated: boolean
   if (state === "error") {
     return (
       <svg
-        width="18" height="18" viewBox="0 0 24 24"
-        fill="none" stroke="currentColor" strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         style={{
-          transform: animated ? 'scale(1)' : 'scale(0.5)',
+          transform: animated ? "scale(1)" : "scale(0.5)",
           opacity: animated ? 1 : 0,
           transition: animated
             ? `transform ${MOTION.fast} ${MOTION.easeOut}, opacity ${MOTION.fast} ${MOTION.easeOut}`
-            : 'none',
+            : "none",
         }}
       >
         <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -229,7 +261,16 @@ function IconForState({ state, animated }: { state: CopyState; animated: boolean
 
   // idle -- clipboard icon
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
       <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
     </svg>

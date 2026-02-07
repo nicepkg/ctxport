@@ -1,10 +1,10 @@
+import { findPlugin } from "@ctxport/core-plugins";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { useExtensionUrl } from "~/hooks/use-extension-url";
 import { CopyButton } from "./copy-button";
 import { ListCopyIcon } from "./list-copy-icon";
 import { Toast, type ToastData } from "./toast";
-import { findPlugin, type Plugin } from "@ctxport/core-plugins";
+import { useExtensionUrl } from "~/hooks/use-extension-url";
 
 export default function App() {
   const url = useExtensionUrl();
@@ -13,7 +13,12 @@ export default function App() {
   const cleanupRef = useRef<(() => void) | null>(null);
 
   const showToast = useCallback(
-    (data: { title: string; subtitle?: string; type: "success" | "error"; isLarge?: boolean }) => {
+    (data: {
+      title: string;
+      subtitle?: string;
+      type: "success" | "error";
+      isLarge?: boolean;
+    }) => {
       setToast({ ...data });
     },
     [],
@@ -65,24 +70,27 @@ export default function App() {
   return (
     <>
       <Toast data={toast} onDismiss={dismissToast} />
-      {showFloatingCopy && plugin && (
-        <FloatingCopyButton onToast={showToast} />
-      )}
+      {showFloatingCopy && plugin && <FloatingCopyButton onToast={showToast} />}
     </>
   );
 }
 
 const FLOATING_MOTION = {
-  normal: '250ms',
-  easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  springSubtle: 'cubic-bezier(0.22, 1.2, 0.36, 1)',
+  normal: "250ms",
+  easeOut: "cubic-bezier(0.16, 1, 0.3, 1)",
+  springSubtle: "cubic-bezier(0.22, 1.2, 0.36, 1)",
 } as const;
 
 /** Floating copy button rendered inside Shadow DOM overlay as fallback */
 function FloatingCopyButton({
   onToast,
 }: {
-  onToast: (data: { title: string; subtitle?: string; type: "success" | "error"; isLarge?: boolean }) => void;
+  onToast: (data: {
+    title: string;
+    subtitle?: string;
+    type: "success" | "error";
+    isLarge?: boolean;
+  }) => void;
 }) {
   const [hovered, setHovered] = useState(false);
 

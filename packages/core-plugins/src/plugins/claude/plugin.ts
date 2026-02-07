@@ -22,10 +22,12 @@ export const claudePlugin: Plugin = {
 
   async extract(ctx: PluginContext): Promise<ContentBundle> {
     const conversationId = extractConversationId(ctx.url);
-    if (!conversationId) throw createAppError("E-PARSE-001", "Not a Claude conversation page");
+    if (!conversationId)
+      throw createAppError("E-PARSE-001", "Not a Claude conversation page");
 
     const orgId = extractOrgId(ctx.document.cookie);
-    if (!orgId) throw createAppError("E-PARSE-005", "Cannot find Claude organization ID");
+    if (!orgId)
+      throw createAppError("E-PARSE-005", "Cannot find Claude organization ID");
 
     const data = await fetchConversation(orgId, conversationId);
     return parseConversation(data, ctx.url);
@@ -33,7 +35,8 @@ export const claudePlugin: Plugin = {
 
   async fetchById(conversationId: string): Promise<ContentBundle> {
     const orgId = extractOrgId(document.cookie);
-    if (!orgId) throw createAppError("E-PARSE-005", "Cannot find Claude organization ID");
+    if (!orgId)
+      throw createAppError("E-PARSE-005", "Cannot find Claude organization ID");
 
     const data = await fetchConversation(orgId, conversationId);
     const url = `https://claude.ai/chat/${conversationId}`;
@@ -53,8 +56,18 @@ export const claudePlugin: Plugin = {
   }),
 
   theme: {
-    light: { primary: "#c6613f", secondary: "#ffedd5", fg: "#ffffff", secondaryFg: "#9a3412" },
-    dark: { primary: "#c6613f", secondary: "#7c2d12", fg: "#431407", secondaryFg: "#ffedd5" },
+    light: {
+      primary: "#c6613f",
+      secondary: "#ffedd5",
+      fg: "#ffffff",
+      secondaryFg: "#9a3412",
+    },
+    dark: {
+      primary: "#c6613f",
+      secondary: "#7c2d12",
+      fg: "#431407",
+      secondaryFg: "#ffedd5",
+    },
   },
 };
 
@@ -93,7 +106,10 @@ async function fetchConversation(
   );
 
   if (!response.ok) {
-    throw createAppError("E-PARSE-005", `Claude API responded with ${response.status}`);
+    throw createAppError(
+      "E-PARSE-005",
+      `Claude API responded with ${response.status}`,
+    );
   }
 
   return (await response.json()) as ClaudeConversationResponse;
@@ -138,7 +154,10 @@ function parseConversation(
   }
 
   if (grouped.length === 0) {
-    throw createAppError("E-PARSE-005", "No messages found in Claude conversation");
+    throw createAppError(
+      "E-PARSE-005",
+      "No messages found in Claude conversation",
+    );
   }
 
   const contentNodes: ContentBundle["nodes"] = grouped.map((msg, index) => ({

@@ -13,25 +13,48 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:ext": "turbo run dev --filter=@ctxport/extension",
+    "dev:web": "turbo run dev --filter=@ctxport/web",
     "dev:packages": "turbo run dev --filter='./packages/*'",
     "build": "turbo run build",
     "build:ext": "turbo run build --filter=@ctxport/extension",
+    "build:web": "turbo run build --filter=@ctxport/web",
     "build:packages": "turbo run build --filter='./packages/*'",
+    "build:packages:watch": "turbo watch build --filter='./packages/*'",
+    "start:web": "pnpm --filter @ctxport/web start",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
-    "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist apps/*/node_modules apps/*/.output .turbo **/.turbo"
+    "typecheck:watch": "turbo watch typecheck",
+    "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist apps/*/node_modules apps/*/.next apps/*/.open-next apps/*/.output .turbo **/.turbo",
+    "prepare": "husky",
+    "release": "semantic-release",
+    "release:dry": "semantic-release --dry-run"
   },
   "engines": {
     "node": ">=22.0.0",
     "pnpm": ">=10.0.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
+    "@commitlint/types": "^20.4.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
     "eslint": "catalog:tooling",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.3.0",
+    "husky": "^9.1.7",
     "prettier": "catalog:tooling",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "semantic-release": "^25.0.3",
     "turbo": "^2.8.3",
-    "typescript": "catalog:tooling"
+    "typescript": "catalog:tooling",
+    "typescript-eslint": "catalog:tooling"
   }
 }

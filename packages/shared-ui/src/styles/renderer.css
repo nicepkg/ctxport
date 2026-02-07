@@ -1,0 +1,446 @@
+/**
+ * @ctxport/shared-ui renderer styles
+ * Pure CSS styles for markdown rendering (no Tailwind)
+ */
+
+/* ============================================================================
+   Base Markdown Container
+   ============================================================================ */
+
+.ctxport-markdown-markdown {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit; /* Inherit from parent for theme support */
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: normal;
+}
+
+/* ============================================================================
+   Headings
+   ============================================================================ */
+
+.ctxport-markdown-heading {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.ctxport-markdown-h1 {
+  font-size: 2em;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.3em;
+}
+
+.ctxport-markdown-h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.3em;
+}
+
+.ctxport-markdown-h3 {
+  font-size: 1.25em;
+}
+
+.ctxport-markdown-h4 {
+  font-size: 1em;
+}
+
+.ctxport-markdown-h5 {
+  font-size: 0.875em;
+}
+
+.ctxport-markdown-h6 {
+  font-size: 0.85em;
+  color: #6b7280;
+}
+
+.ctxport-markdown-markdown > .ctxport-markdown-heading:first-child {
+  margin-top: 0;
+}
+
+/* ============================================================================
+   Paragraphs
+   ============================================================================ */
+
+.ctxport-markdown-paragraph {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.ctxport-markdown-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================================
+   Links
+   ============================================================================ */
+
+.ctxport-markdown-link {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.ctxport-markdown-link:hover {
+  color: #1d4ed8;
+}
+
+/* ============================================================================
+   Lists
+   ============================================================================ */
+
+.ctxport-markdown-list {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-left: 2em;
+}
+
+.ctxport-markdown-ul {
+  list-style-type: disc;
+}
+
+.ctxport-markdown-ol {
+  list-style-type: decimal;
+}
+
+.ctxport-markdown-list-item {
+  margin-bottom: 4px;
+}
+
+.ctxport-markdown-list-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Nested lists */
+.ctxport-markdown-list .ctxport-markdown-list {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* ============================================================================
+   Blockquotes
+   ============================================================================ */
+
+.ctxport-markdown-blockquote {
+  margin: 0 0 16px 0;
+  padding: 12px 20px;
+  border-left: 4px solid #d1d5db;
+  background-color: #f9fafb;
+  color: #4b5563;
+  font-style: italic;
+  border-radius: 0 4px 4px 0;
+}
+
+.ctxport-markdown-blockquote > .ctxport-markdown-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================================
+   Inline Code - Uses CSS variables from theme
+   ============================================================================ */
+
+.ctxport-markdown-inline-code {
+  padding: 2px 6px;
+  background-color: var(--ctxport-code-bg, #f3f4f6);
+  border-radius: 5px;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color: var(--ctxport-code-fg, #db2777);
+}
+
+/* ============================================================================
+   Code Blocks - Uses CSS variables from theme
+   ============================================================================ */
+
+.ctxport-markdown-code-block {
+  position: relative;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 12px 0;
+  background-color: var(--ctxport-code-bg, #1f2937);
+  color: var(--ctxport-code-fg, #e5e7eb);
+  border: 1px solid var(--ctxport-border, #374151);
+}
+
+.ctxport-markdown-code-block-language {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.ctxport-markdown-code-block-copy {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ctxport-muted-fg, #9ca3af);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.ctxport-markdown-code-block-copy:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--ctxport-code-fg, #e5e7eb);
+}
+
+.ctxport-markdown-code-block-content {
+  padding: 14px 16px;
+  margin: 0;
+  overflow-x: auto;
+}
+
+/* Shiki generated pre/code styles */
+.ctxport-markdown-code-block-content pre {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+}
+
+.ctxport-markdown-code-block-content .shiki {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.ctxport-markdown-code-block-content code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Fallback code block style */
+.ctxport-markdown-code-block-fallback {
+  background-color: var(--ctxport-code-bg, #1f2937);
+  color: var(--ctxport-code-fg, #e5e7eb);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.ctxport-markdown-code-block-fallback code {
+  color: inherit;
+  background: transparent;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+/* ============================================================================
+   Mermaid Diagrams
+   ============================================================================ */
+
+.ctxport-markdown-mermaid-block {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: auto;
+  text-align: center;
+}
+
+/* Add margin-top only when there's a preceding sibling */
+* + .ctxport-markdown-mermaid-block {
+  margin-top: 16px;
+}
+
+/* Add margin-bottom only when there's a following sibling */
+.ctxport-markdown-mermaid-block:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+.ctxport-markdown-mermaid-block svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.ctxport-markdown-mermaid-error {
+  text-align: left;
+}
+
+.ctxport-markdown-mermaid-loading {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* ============================================================================
+   Tables
+   ============================================================================ */
+
+.ctxport-markdown-table-wrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.ctxport-markdown-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+
+.ctxport-markdown-thead {
+  background-color: #f9fafb;
+}
+
+.ctxport-markdown-th {
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+  font-weight: 600;
+}
+
+.ctxport-markdown-td {
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.ctxport-markdown-tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+/* ============================================================================
+   Horizontal Rule
+   ============================================================================ */
+
+.ctxport-markdown-hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 24px 0;
+}
+
+/* ============================================================================
+   Images
+   ============================================================================ */
+
+.ctxport-markdown-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Add margin-top only when there's a preceding sibling */
+* + .ctxport-markdown-image {
+  margin-top: 16px;
+}
+
+/* Add margin-bottom only when there's a following sibling */
+.ctxport-markdown-image:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+/* ============================================================================
+   Text Formatting
+   ============================================================================ */
+
+.ctxport-markdown-strong {
+  font-weight: 600;
+}
+
+.ctxport-markdown-em {
+  font-style: italic;
+}
+
+.ctxport-markdown-del {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+/* ============================================================================
+   Dark Theme Support
+   ============================================================================ */
+
+.ctxport-markdown-markdown.ctxport-markdown-dark {
+  color: #e5e7eb;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-h1,
+.ctxport-markdown-dark .ctxport-markdown-h2 {
+  border-bottom-color: #374151;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-h6 {
+  color: #9ca3af;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-link {
+  color: #60a5fa;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-link:hover {
+  color: #93c5fd;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-blockquote {
+  border-left-color: #4b5563;
+  background-color: #1f2937;
+  color: #9ca3af;
+}
+
+/* Inline code in dark mode - uses same CSS variables */
+.ctxport-markdown-dark .ctxport-markdown-inline-code {
+  background-color: var(--ctxport-code-bg, #374151);
+  color: var(--ctxport-code-fg, #f472b6);
+}
+
+.ctxport-markdown-dark .ctxport-markdown-thead {
+  background-color: #1f2937;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-th,
+.ctxport-markdown-dark .ctxport-markdown-td {
+  border-color: #374151;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-tr:nth-child(even) {
+  background-color: #1f2937;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-hr {
+  border-top-color: #374151;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-del {
+  color: #9ca3af;
+}
+
+.ctxport-markdown-dark .ctxport-markdown-mermaid-block {
+  background-color: #1f2937;
+}
+
+/* ============================================================================
+   Task Lists (GFM)
+   ============================================================================ */
+
+.ctxport-markdown-list-item input[type="checkbox"] {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* ============================================================================
+   Print Styles
+   ============================================================================ */
+
+@media print {
+  .ctxport-markdown-code-block-copy {
+    display: none;
+  }
+
+  .ctxport-markdown-code-block {
+    break-inside: avoid;
+  }
+
+  .ctxport-markdown-mermaid-block {
+    break-inside: avoid;
+  }
+}

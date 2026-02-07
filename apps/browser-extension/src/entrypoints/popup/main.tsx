@@ -1,6 +1,6 @@
+import { registerBuiltinPlugins, findPlugin } from "@ctxport/core-plugins";
 import { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { registerBuiltinPlugins, findPlugin } from "@ctxport/core-plugins";
 import {
   EXTENSION_RUNTIME_MESSAGE,
   isSupportedTabUrl,
@@ -275,8 +275,20 @@ function UnsupportedState({ dark }: { dark: boolean }) {
         >
           <circle cx="12" cy="12" r="10" />
           <path d="M8 15h8" />
-          <circle cx="9" cy="9" r="1" fill={dark ? "#4b5563" : "#d1d5db"} stroke="none" />
-          <circle cx="15" cy="9" r="1" fill={dark ? "#4b5563" : "#d1d5db"} stroke="none" />
+          <circle
+            cx="9"
+            cy="9"
+            r="1"
+            fill={dark ? "#4b5563" : "#d1d5db"}
+            stroke="none"
+          />
+          <circle
+            cx="15"
+            cy="9"
+            r="1"
+            fill={dark ? "#4b5563" : "#d1d5db"}
+            stroke="none"
+          />
         </svg>
         <p
           style={{

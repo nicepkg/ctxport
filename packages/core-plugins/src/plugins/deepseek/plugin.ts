@@ -22,10 +22,12 @@ export const deepseekPlugin: Plugin = {
 
   async extract(ctx: PluginContext): Promise<ContentBundle> {
     const sessionId = extractSessionId(ctx.url);
-    if (!sessionId) throw createAppError("E-PARSE-001", "Not a DeepSeek conversation page");
+    if (!sessionId)
+      throw createAppError("E-PARSE-001", "Not a DeepSeek conversation page");
 
     const token = extractAuthToken();
-    if (!token) throw createAppError("E-PARSE-005", "Cannot find DeepSeek auth token");
+    if (!token)
+      throw createAppError("E-PARSE-005", "Cannot find DeepSeek auth token");
 
     const data = await fetchHistory(sessionId, token);
     return parseConversation(data, ctx.url);
@@ -33,7 +35,8 @@ export const deepseekPlugin: Plugin = {
 
   async fetchById(sessionId: string): Promise<ContentBundle> {
     const token = extractAuthToken();
-    if (!token) throw createAppError("E-PARSE-005", "Cannot find DeepSeek auth token");
+    if (!token)
+      throw createAppError("E-PARSE-005", "Cannot find DeepSeek auth token");
 
     const data = await fetchHistory(sessionId, token);
     const url = `https://chat.deepseek.com/a/chat/s/${sessionId}`;
@@ -49,13 +52,24 @@ export const deepseekPlugin: Plugin = {
     copyButtonPosition: "prepend",
     listItemLinkSelector: 'a[href*="/a/chat/"]',
     listItemIdPattern: /\/a\/chat\/(?:s\/)?([a-zA-Z0-9-]+)$/,
-    mainContentSelector: 'main, [class*="chat-container"], [class*="conversation"]',
+    mainContentSelector:
+      'main, [class*="chat-container"], [class*="conversation"]',
     sidebarSelector: 'nav, [class*="sidebar"], [class*="session-list"]',
   }),
 
   theme: {
-    light: { primary: "#4d6bfe", secondary: "#eef1ff", fg: "#ffffff", secondaryFg: "#6366f1" },
-    dark: { primary: "#4d6bfe", secondary: "#1a1a2e", fg: "#ffffff", secondaryFg: "#a5b4fc" },
+    light: {
+      primary: "#4d6bfe",
+      secondary: "#eef1ff",
+      fg: "#ffffff",
+      secondaryFg: "#6366f1",
+    },
+    dark: {
+      primary: "#4d6bfe",
+      secondary: "#1a1a2e",
+      fg: "#ffffff",
+      secondaryFg: "#a5b4fc",
+    },
   },
 };
 
@@ -72,8 +86,11 @@ function extractAuthToken(): string | null {
   try {
     const stored = localStorage.getItem("userToken");
     if (!stored) return null;
-    const parsed = JSON.parse(stored);
-    return parsed?.value ?? parsed ?? null;
+    const parsed: unknown = JSON.parse(stored);
+    if (parsed && typeof parsed === "object" && "value" in parsed) {
+      return String((parsed as Record<string, unknown>).value);
+    }
+    return typeof parsed === "string" ? parsed : null;
   } catch {
     return null;
   }
@@ -102,7 +119,10 @@ async function fetchHistory(
   );
 
   if (!response.ok) {
-    throw createAppError("E-PARSE-005", `DeepSeek API responded with ${response.status}`);
+    throw createAppError(
+      "E-PARSE-005",
+      `DeepSeek API responded with ${response.status}`,
+    );
   }
 
   return (await response.json()) as DeepSeekHistoryResponse;
@@ -153,7 +173,10 @@ function parseConversation(
   }
 
   if (grouped.length === 0) {
-    throw createAppError("E-PARSE-005", "No messages found in DeepSeek conversation");
+    throw createAppError(
+      "E-PARSE-005",
+      "No messages found in DeepSeek conversation",
+    );
   }
 
   const contentNodes: ContentBundle["nodes"] = grouped.map((msg, index) => ({

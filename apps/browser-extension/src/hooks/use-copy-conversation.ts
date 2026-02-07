@@ -1,6 +1,9 @@
-import { useState, useCallback } from "react";
+import {
+  serializeConversation,
+  type BundleFormatType,
+} from "@ctxport/core-markdown";
 import { findPlugin } from "@ctxport/core-plugins";
-import { serializeConversation, type BundleFormatType } from "@ctxport/core-markdown";
+import { useState, useCallback } from "react";
 import { writeToClipboard } from "~/lib/utils";
 
 export type CopyState = "idle" | "loading" | "success" | "error";
@@ -15,49 +18,45 @@ export function useCopyConversation() {
   const [result, setResult] = useState<CopyResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const copy = useCallback(
-    async (format: BundleFormatType = "full") => {
-      setState("loading");
-      setError(null);
-      setResult(null);
+  const copy = useCallback(async (format: BundleFormatType = "full") => {
+    setState("loading");
+    setError(null);
+    setResult(null);
 
-      try {
-        const plugin = findPlugin(window.location.href);
-        if (!plugin) throw new Error("No plugin for this page");
+    try {
+      const plugin = findPlugin(window.location.href);
+      if (!plugin) throw new Error("No plugin for this page");
 
-        const bundle = await plugin.extract({
-          url: window.location.href,
-          document,
-        });
+      const bundle = await plugin.extract({
+        url: window.location.href,
+        document,
+      });
 
-        const serialized = serializeConversation(bundle, { format });
+      const serialized = serializeConversation(bundle, { format });
 
-        await writeToClipboard(serialized.markdown);
+      await writeToClipboard(serialized.markdown);
 
-        setResult({
-          messageCount: serialized.messageCount,
-          estimatedTokens: serialized.estimatedTokens,
-        });
-        setState("success");
+      setResult({
+        messageCount: serialized.messageCount,
+        estimatedTokens: serialized.estimatedTokens,
+      });
+      setState("success");
 
-        setTimeout(() => {
-          setState("idle");
-          setResult(null);
-        }, 1500);
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Unknown error";
-        setError(message);
-        setState("error");
+      setTimeout(() => {
+        setState("idle");
+        setResult(null);
+      }, 1500);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(message);
+      setState("error");
 
-        setTimeout(() => {
-          setState("idle");
-          setError(null);
-        }, 3000);
-      }
-    },
-    [],
-  );
+      setTimeout(() => {
+        setState("idle");
+        setError(null);
+      }, 3000);
+    }
+  }, []);
 
   return { state, result, error, copy };
 }

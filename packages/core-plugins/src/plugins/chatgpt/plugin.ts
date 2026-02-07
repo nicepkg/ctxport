@@ -29,7 +29,8 @@ export const chatgptPlugin: Plugin = {
 
   async extract(ctx: PluginContext): Promise<ContentBundle> {
     const conversationId = extractConversationId(ctx.url);
-    if (!conversationId) throw createAppError("E-PARSE-001", "Not a ChatGPT conversation page");
+    if (!conversationId)
+      throw createAppError("E-PARSE-001", "Not a ChatGPT conversation page");
 
     const data = await fetchConversationWithTokenRetry(conversationId);
     return parseConversation(data, ctx.url);
@@ -56,8 +57,18 @@ export const chatgptPlugin: Plugin = {
   }),
 
   theme: {
-    light: { primary: "#0d0d0d", secondary: "#5d5d5d", fg: "#ffffff", secondaryFg: "#ffffff" },
-    dark: { primary: "#0d0d0d", secondary: "#5d5d5d", fg: "#ffffff", secondaryFg: "#ffffff" },
+    light: {
+      primary: "#0d0d0d",
+      secondary: "#5d5d5d",
+      fg: "#ffffff",
+      secondaryFg: "#ffffff",
+    },
+    dark: {
+      primary: "#0d0d0d",
+      secondary: "#5d5d5d",
+      fg: "#ffffff",
+      secondaryFg: "#ffffff",
+    },
   },
 };
 
@@ -86,18 +97,29 @@ async function fetchAndCacheAccessToken(): Promise<string> {
   });
 
   if (!response.ok) {
-    throw createAppError("E-PARSE-005", `ChatGPT session API responded with ${response.status}`);
+    throw createAppError(
+      "E-PARSE-005",
+      `ChatGPT session API responded with ${response.status}`,
+    );
   }
 
-  const session = (await response.json()) as { accessToken?: string; expires?: string };
+  const session = (await response.json()) as {
+    accessToken?: string;
+    expires?: string;
+  };
   if (!session.accessToken) {
-    throw createAppError("E-PARSE-005", "Cannot retrieve ChatGPT access token from session");
+    throw createAppError(
+      "E-PARSE-005",
+      "Cannot retrieve ChatGPT access token from session",
+    );
   }
 
   const parsed = Date.parse(session.expires ?? "");
   accessTokenCache = {
     token: session.accessToken,
-    expiresAt: Number.isFinite(parsed) ? parsed : Date.now() + DEFAULT_TOKEN_TTL_MS,
+    expiresAt: Number.isFinite(parsed)
+      ? parsed
+      : Date.now() + DEFAULT_TOKEN_TTL_MS,
   };
 
   return session.accessToken;
@@ -227,7 +249,10 @@ async function parseConversation(
   }
 
   if (contentNodes.length === 0) {
-    throw createAppError("E-PARSE-005", "No messages found in ChatGPT conversation");
+    throw createAppError(
+      "E-PARSE-005",
+      "No messages found in ChatGPT conversation",
+    );
   }
 
   return {

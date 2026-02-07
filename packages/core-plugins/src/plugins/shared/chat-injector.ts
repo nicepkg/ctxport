@@ -1,4 +1,8 @@
-import type { PluginContext, PluginInjector, InjectorCallbacks } from "../../types";
+import type {
+  PluginContext,
+  PluginInjector,
+  InjectorCallbacks,
+} from "../../types";
 
 /** Configuration for the shared chat injector factory */
 export interface ChatInjectorConfig {
@@ -122,7 +126,8 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       container.style.top = "50%";
       container.style.opacity = "0";
       container.style.transform = "translateY(-50%) scale(0.85)";
-      container.style.transition = "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
+      container.style.transition =
+        "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
       container.style.pointerEvents = "none";
       container.style.zIndex = "10";
 
@@ -136,13 +141,15 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
         parent.addEventListener("mouseenter", () => {
           container.style.opacity = "1";
           container.style.transform = "translateY(-50%) scale(1)";
-          container.style.transition = "opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.22, 1.2, 0.36, 1)";
+          container.style.transition =
+            "opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.22, 1.2, 0.36, 1)";
           container.style.pointerEvents = "auto";
         });
         parent.addEventListener("mouseleave", () => {
           container.style.opacity = "0";
           container.style.transform = "translateY(-50%) scale(0.85)";
-          container.style.transition = "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
+          container.style.transition =
+            "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
           container.style.pointerEvents = "none";
         });
       }
@@ -159,7 +166,9 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       // Copy button with MutationObserver on main content area
       const copyTimer = setTimeout(() => {
         tryInjectCopyButton();
-        const debouncedTry = debouncedObserverCallback(() => tryInjectCopyButton());
+        const debouncedTry = debouncedObserverCallback(() =>
+          tryInjectCopyButton(),
+        );
         const target =
           document.querySelector(config.mainContentSelector) ??
           document.querySelector("main") ??
@@ -173,7 +182,9 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       // List icons with MutationObserver on sidebar
       const listTimer = setTimeout(() => {
         tryInjectListIcons();
-        const debouncedTry = debouncedObserverCallback(() => tryInjectListIcons());
+        const debouncedTry = debouncedObserverCallback(() =>
+          tryInjectListIcons(),
+        );
         const sidebar =
           document.querySelector(config.sidebarSelector) ??
           document.querySelector("nav") ??
@@ -183,7 +194,6 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
         observers.push(observer);
       }, INJECTION_DELAY_MS);
       timers.push(listTimer);
-
     },
 
     cleanup() {

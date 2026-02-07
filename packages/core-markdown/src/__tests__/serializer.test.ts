@@ -1,6 +1,6 @@
+import type { ContentBundle } from "@ctxport/core-schema";
 import { describe, it, expect } from "vitest";
 import { serializeConversation, serializeBundle } from "../serializer";
-import type { ContentBundle } from "@ctxport/core-schema";
 
 function makeBundle(overrides: Partial<ContentBundle> = {}): ContentBundle {
   return {
@@ -20,7 +20,8 @@ function makeBundle(overrides: Partial<ContentBundle> = {}): ContentBundle {
       {
         id: "00000000-0000-0000-0000-000000000011",
         participantId: "assistant-1",
-        content: "I'm doing well! Here's some code:\n\n```python\nprint('hello')\n```",
+        content:
+          "I'm doing well! Here's some code:\n\n```python\nprint('hello')\n```",
         order: 1,
       },
     ],
@@ -86,7 +87,9 @@ describe("serializeConversation", () => {
     const bundle = makeBundle({ title: 'Discussing "REST API": auth' });
     const result = serializeConversation(bundle);
 
-    expect(result.markdown).toContain('title: "Discussing \\"REST API\\": auth"');
+    expect(result.markdown).toContain(
+      'title: "Discussing \\"REST API\\": auth"',
+    );
   });
 
   it("should handle system role nodes", () => {
@@ -138,7 +141,8 @@ describe("serializeConversation", () => {
         {
           id: "00000000-0000-0000-0000-000000000010",
           participantId: "assistant-1",
-          content: "Here is markdown:\n\n````md\n```python\nprint('hi')\n```\n````",
+          content:
+            "Here is markdown:\n\n````md\n```python\nprint('hi')\n```\n````",
           order: 0,
         },
       ],

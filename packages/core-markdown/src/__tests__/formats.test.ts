@@ -1,6 +1,6 @@
+import type { ContentNode, Participant } from "@ctxport/core-schema";
 import { describe, it, expect } from "vitest";
 import { filterNodes } from "../formats";
-import type { ContentNode, Participant } from "@ctxport/core-schema";
 
 const participants: Participant[] = [
   { id: "user-1", name: "User", role: "user" },

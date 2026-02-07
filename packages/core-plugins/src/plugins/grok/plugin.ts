@@ -1,6 +1,11 @@
 import type { ContentBundle } from "@ctxport/core-schema";
 import { createAppError } from "@ctxport/core-schema";
-import type { InjectorCallbacks, Plugin, PluginContext, PluginInjector } from "../../types";
+import type {
+  InjectorCallbacks,
+  Plugin,
+  PluginContext,
+  PluginInjector,
+} from "../../types";
 import { generateId } from "../../utils";
 import type {
   GrokLoadedResponse,
@@ -47,8 +52,18 @@ export const grokPlugin: Plugin = {
   injector: createGrokInjector(),
 
   theme: {
-    light: { primary: "#000000", secondary: "#eff3f4", fg: "#ffffff", secondaryFg: "#536471" },
-    dark: { primary: "#ffffff", secondary: "#16181c", fg: "#000000", secondaryFg: "#71767b" },
+    light: {
+      primary: "#000000",
+      secondary: "#eff3f4",
+      fg: "#ffffff",
+      secondaryFg: "#536471",
+    },
+    dark: {
+      primary: "#ffffff",
+      secondary: "#16181c",
+      fg: "#000000",
+      secondaryFg: "#71767b",
+    },
   },
 };
 
@@ -82,7 +97,8 @@ function createGrokInjector(): PluginInjector {
   function tryInjectListIcons(): void {
     if (!callbacks) return;
 
-    const links = document.querySelectorAll<HTMLAnchorElement>('a[href*="/c/"]');
+    const links =
+      document.querySelectorAll<HTMLAnchorElement>('a[href*="/c/"]');
     for (const link of links) {
       if (link.getAttribute(CTXPORT_ATTR) === "list-icon") continue;
 
@@ -118,13 +134,15 @@ function createGrokInjector(): PluginInjector {
         parent.addEventListener("mouseenter", () => {
           container.style.opacity = "1";
           container.style.transform = "translateY(-50%) scale(1)";
-          container.style.transition = "opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.22, 1.2, 0.36, 1)";
+          container.style.transition =
+            "opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.22, 1.2, 0.36, 1)";
           container.style.pointerEvents = "auto";
         });
         parent.addEventListener("mouseleave", () => {
           container.style.opacity = "0";
           container.style.transform = "translateY(-50%) scale(0.85)";
-          container.style.transition = "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
+          container.style.transition =
+            "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
           container.style.pointerEvents = "none";
         });
       }
@@ -143,8 +161,12 @@ function createGrokInjector(): PluginInjector {
       rafId = requestAnimationFrame(() => {
         rafId = null;
         running = true;
-        try { fn(); } finally {
-          Promise.resolve().then(() => { running = false; });
+        try {
+          fn();
+        } finally {
+          Promise.resolve().then(() => {
+            running = false;
+          });
         }
       });
     };
@@ -177,8 +199,12 @@ function createGrokInjector(): PluginInjector {
       observers = [];
       for (const timer of timers) clearTimeout(timer);
       timers = [];
-      document.querySelectorAll(`.${COPY_BTN_CLASS}`).forEach((el) => el.remove());
-      document.querySelectorAll(`.${LIST_ICON_CLASS}`).forEach((el) => el.remove());
+      document
+        .querySelectorAll(`.${COPY_BTN_CLASS}`)
+        .forEach((el) => el.remove());
+      document
+        .querySelectorAll(`.${LIST_ICON_CLASS}`)
+        .forEach((el) => el.remove());
       callbacks = null;
     },
   };
@@ -193,7 +219,9 @@ function extractConversationId(url: string): string | null {
 
 // --- Internal: API fetch ---
 
-async function fetchConversation(conversationId: string): Promise<GrokLoadedResponse[]> {
+async function fetchConversation(
+  conversationId: string,
+): Promise<GrokLoadedResponse[]> {
   // Step 1: Get response node tree
   const nodeResponse = await fetch(
     `${API_BASE}/${conversationId}/response-node?includeThreads=true`,
@@ -205,14 +233,20 @@ async function fetchConversation(conversationId: string): Promise<GrokLoadedResp
   );
 
   if (!nodeResponse.ok) {
-    throw createAppError("E-PARSE-005", `Grok API responded with ${nodeResponse.status}`);
+    throw createAppError(
+      "E-PARSE-005",
+      `Grok API responded with ${nodeResponse.status}`,
+    );
   }
 
   const nodeData = (await nodeResponse.json()) as GrokResponseNodeResponse;
   const responseIds = nodeData.responseNodes.map((n) => n.responseId);
 
   if (responseIds.length === 0) {
-    throw createAppError("E-PARSE-005", "No messages found in Grok conversation");
+    throw createAppError(
+      "E-PARSE-005",
+      "No messages found in Grok conversation",
+    );
   }
 
   // Step 2: Load full message content
@@ -230,7 +264,10 @@ async function fetchConversation(conversationId: string): Promise<GrokLoadedResp
   );
 
   if (!loadResponse.ok) {
-    throw createAppError("E-PARSE-005", `Grok API responded with ${loadResponse.status}`);
+    throw createAppError(
+      "E-PARSE-005",
+      `Grok API responded with ${loadResponse.status}`,
+    );
   }
 
   const loadData = (await loadResponse.json()) as GrokLoadResponsesResponse;
@@ -277,7 +314,10 @@ function buildBundle(
   url: string,
 ): ContentBundle {
   if (messages.length === 0) {
-    throw createAppError("E-PARSE-005", "No messages found in Grok conversation");
+    throw createAppError(
+      "E-PARSE-005",
+      "No messages found in Grok conversation",
+    );
   }
 
   // Use first user message as title

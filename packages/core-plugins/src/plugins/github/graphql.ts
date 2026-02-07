@@ -3,18 +3,25 @@
 // --- CSRF & Login helpers ---
 
 export function getCsrfToken(): string | null {
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]');
+  const meta = document.querySelector<HTMLMetaElement>(
+    'meta[name="csrf-token"]',
+  );
   return meta?.content ?? null;
 }
 
 export function isUserLoggedIn(): boolean {
-  const meta = document.querySelector<HTMLMetaElement>('meta[name="user-login"]');
+  const meta = document.querySelector<HTMLMetaElement>(
+    'meta[name="user-login"]',
+  );
   return !!meta?.content;
 }
 
 // --- GraphQL client ---
 
-export async function githubGraphQL<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+export async function githubGraphQL<T>(
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<T> {
   const csrfToken = getCsrfToken();
   if (!csrfToken) {
     throw new Error("CSRF token not found — user may not be logged in");
@@ -34,9 +41,14 @@ export async function githubGraphQL<T>(query: string, variables: Record<string, 
     throw new Error(`GraphQL request failed: ${response.status}`);
   }
 
-  const json = (await response.json()) as { data?: T; errors?: Array<{ message: string }> };
+  const json = (await response.json()) as {
+    data?: T;
+    errors?: Array<{ message: string }>;
+  };
   if (json.errors?.length) {
-    throw new Error(`GraphQL errors: ${json.errors.map((e) => e.message).join(", ")}`);
+    throw new Error(
+      `GraphQL errors: ${json.errors.map((e) => e.message).join(", ")}`,
+    );
   }
   if (!json.data) {
     throw new Error("GraphQL response missing data");

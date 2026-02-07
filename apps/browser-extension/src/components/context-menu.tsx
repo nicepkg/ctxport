@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
 import type { BundleFormatType } from "@ctxport/core-markdown";
+import { useState, useEffect, useRef } from "react";
 
 interface ContextMenuProps {
   x: number;

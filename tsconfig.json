@@ -4,6 +4,8 @@
     { "path": "./packages/core-schema" },
     { "path": "./packages/core-plugins" },
     { "path": "./packages/core-markdown" },
-    { "path": "./apps/browser-extension" }
+    { "path": "./packages/shared-ui" },
+    { "path": "./apps/browser-extension" },
+    { "path": "./apps/web" }
   ]
 }

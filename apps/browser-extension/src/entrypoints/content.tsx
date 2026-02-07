@@ -1,6 +1,9 @@
 import "./styles/globals.css";
 
-import { EXTENSION_HOST_PERMISSIONS, registerBuiltinPlugins } from "@ctxport/core-plugins";
+import {
+  EXTENSION_HOST_PERMISSIONS,
+  registerBuiltinPlugins,
+} from "@ctxport/core-plugins";
 import { createRoot } from "react-dom/client";
 import App from "~/components/app";
 import {

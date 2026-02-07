@@ -29,7 +29,16 @@ export async function fetchConversationPayload(
     [
       [
         rpcId,
-        JSON.stringify([`c_${conversationId}`, 100, null, 1, [0], [4], null, 1]),
+        JSON.stringify([
+          `c_${conversationId}`,
+          100,
+          null,
+          1,
+          [0],
+          [4],
+          null,
+          1,
+        ]),
         null,
         "generic",
       ],
@@ -197,7 +206,8 @@ function isLikelyMessageText(content: string): boolean {
   const text = normalizeText(content);
   if (!text) return false;
   if (text.startsWith("http://") || text.startsWith("https://")) return false;
-  if (text.includes("googleusercontent.com/image_generation_content/")) return false;
+  if (text.includes("googleusercontent.com/image_generation_content/"))
+    return false;
   if (/^(?:rc_|r_|c_)[a-zA-Z0-9_]+$/.test(text)) return false;
   if (/^[A-Za-z0-9+/=_-]{48,}$/.test(text)) return false;
   return /[A-Za-z0-9\u4e00-\u9fff]/.test(text);

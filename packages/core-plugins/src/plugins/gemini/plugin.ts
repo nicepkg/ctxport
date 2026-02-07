@@ -49,7 +49,7 @@ export const geminiPlugin: Plugin = {
     platform: "gemini",
     copyButtonSelectors: [
       // Model picker container (stable Angular class), copy button goes after it
-      '.model-picker-container',
+      ".model-picker-container",
     ],
     copyButtonPosition: "after",
     listItemLinkSelector: 'a[href*="/app/"]',
@@ -59,8 +59,18 @@ export const geminiPlugin: Plugin = {
   }),
 
   theme: {
-    light: { primary: "#0842a0", secondary: "#d3e3fd", fg: "#ffffff", secondaryFg: "#1d4ed8" },
-    dark: { primary: "#d3e3fd", secondary: "#0842a0", fg: "#0b1537", secondaryFg: "#e0ecff" },
+    light: {
+      primary: "#0842a0",
+      secondary: "#d3e3fd",
+      fg: "#ffffff",
+      secondaryFg: "#1d4ed8",
+    },
+    dark: {
+      primary: "#d3e3fd",
+      secondary: "#0842a0",
+      fg: "#0b1537",
+      secondaryFg: "#e0ecff",
+    },
   },
 };
 

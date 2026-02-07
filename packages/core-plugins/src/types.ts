@@ -26,8 +26,18 @@ export interface PluginInjector {
 
 /** Theme color tokens */
 export interface ThemeConfig {
-  light: { primary: string; secondary: string; fg: string; secondaryFg: string };
-  dark?: { primary: string; secondary: string; fg: string; secondaryFg: string };
+  light: {
+    primary: string;
+    secondary: string;
+    fg: string;
+    secondaryFg: string;
+  };
+  dark?: {
+    primary: string;
+    secondary: string;
+    fg: string;
+    secondaryFg: string;
+  };
 }
 
 /** Plugin definition */

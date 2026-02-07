@@ -1,4 +1,8 @@
-import type { ContentBundle, ContentNode, Participant } from "@ctxport/core-schema";
+import type {
+  ContentBundle,
+  ContentNode,
+  Participant,
+} from "@ctxport/core-schema";
 import { createAppError } from "@ctxport/core-schema";
 import type { Plugin, PluginContext } from "../../types";
 import { generateId } from "../../utils";
@@ -18,7 +22,8 @@ import type {
   GitHubReviewComment,
 } from "./types";
 
-const ISSUE_PATTERN = /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/;
+const ISSUE_PATTERN =
+  /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/;
 const PR_PATTERN = /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)/;
 
 const API_BASE = "https://api.github.com";
@@ -36,23 +41,51 @@ export const githubPlugin: Plugin = {
   async extract(ctx: PluginContext): Promise<ContentBundle> {
     const parsed = parseGitHubUrl(ctx.url);
     if (!parsed) {
-      throw createAppError("E-PARSE-001", "Not a GitHub Issue or Pull Request page");
+      throw createAppError(
+        "E-PARSE-001",
+        "Not a GitHub Issue or Pull Request page",
+      );
     }
-    return fetchAndBuild(parsed.owner, parsed.repo, parsed.number, parsed.type, ctx.url);
+    return fetchAndBuild(
+      parsed.owner,
+      parsed.repo,
+      parsed.number,
+      parsed.type,
+      ctx.url,
+    );
   },
 
   async fetchById(id: string): Promise<ContentBundle> {
     const parsed = parseGitHubId(id);
     if (!parsed) {
-      throw createAppError("E-PARSE-001", `Invalid GitHub ID format: ${id}. Expected: owner/repo/issues/123 or owner/repo/pull/123`);
+      throw createAppError(
+        "E-PARSE-001",
+        `Invalid GitHub ID format: ${id}. Expected: owner/repo/issues/123 or owner/repo/pull/123`,
+      );
     }
     const url = `https://github.com/${parsed.owner}/${parsed.repo}/${parsed.type === "issue" ? "issues" : "pull"}/${parsed.number}`;
-    return fetchAndBuild(parsed.owner, parsed.repo, parsed.number, parsed.type, url);
+    return fetchAndBuild(
+      parsed.owner,
+      parsed.repo,
+      parsed.number,
+      parsed.type,
+      url,
+    );
   },
 
   theme: {
-    light: { primary: "#24292f", secondary: "#f6f8fa", fg: "#ffffff", secondaryFg: "#656d76" },
-    dark: { primary: "#f0f6fc", secondary: "#161b22", fg: "#0d1117", secondaryFg: "#7d8590" },
+    light: {
+      primary: "#24292f",
+      secondary: "#f6f8fa",
+      fg: "#ffffff",
+      secondaryFg: "#656d76",
+    },
+    dark: {
+      primary: "#f0f6fc",
+      secondary: "#161b22",
+      fg: "#0d1117",
+      secondaryFg: "#7d8590",
+    },
   },
 };
 
@@ -68,11 +101,21 @@ interface ParsedGitHub {
 function parseGitHubUrl(url: string): ParsedGitHub | null {
   const issueMatch = ISSUE_PATTERN.exec(url);
   if (issueMatch) {
-    return { owner: issueMatch[1]!, repo: issueMatch[2]!, number: Number(issueMatch[3]), type: "issue" };
+    return {
+      owner: issueMatch[1]!,
+      repo: issueMatch[2]!,
+      number: Number(issueMatch[3]),
+      type: "issue",
+    };
   }
   const prMatch = PR_PATTERN.exec(url);
   if (prMatch) {
-    return { owner: prMatch[1]!, repo: prMatch[2]!, number: Number(prMatch[3]), type: "pull-request" };
+    return {
+      owner: prMatch[1]!,
+      repo: prMatch[2]!,
+      number: Number(prMatch[3]),
+      type: "pull-request",
+    };
   }
   return null;
 }
@@ -80,11 +123,21 @@ function parseGitHubUrl(url: string): ParsedGitHub | null {
 function parseGitHubId(id: string): ParsedGitHub | null {
   const issueMatch = /^([^/]+)\/([^/]+)\/issues\/(\d+)$/.exec(id);
   if (issueMatch) {
-    return { owner: issueMatch[1]!, repo: issueMatch[2]!, number: Number(issueMatch[3]), type: "issue" };
+    return {
+      owner: issueMatch[1]!,
+      repo: issueMatch[2]!,
+      number: Number(issueMatch[3]),
+      type: "issue",
+    };
   }
   const prMatch = /^([^/]+)\/([^/]+)\/pull\/(\d+)$/.exec(id);
   if (prMatch) {
-    return { owner: prMatch[1]!, repo: prMatch[2]!, number: Number(prMatch[3]), type: "pull-request" };
+    return {
+      owner: prMatch[1]!,
+      repo: prMatch[2]!,
+      number: Number(prMatch[3]),
+      type: "pull-request",
+    };
   }
   return null;
 }
@@ -103,7 +156,10 @@ async function fetchAndBuild(
     try {
       return await fetchAndBuildGraphQL(owner, repo, number, type, url);
     } catch (err) {
-      console.warn("[ctxport/github] GraphQL failed, falling back to REST API:", err);
+      console.warn(
+        "[ctxport/github] GraphQL failed, falling back to REST API:",
+        err,
+      );
     }
   }
 
@@ -121,11 +177,19 @@ async function fetchAndBuildGraphQL(
   url: string,
 ): Promise<ContentBundle> {
   if (type === "pull-request") {
-    const data = await githubGraphQL<GQLPullRequestData>(PR_QUERY, { owner, repo, number });
+    const data = await githubGraphQL<GQLPullRequestData>(PR_QUERY, {
+      owner,
+      repo,
+      number,
+    });
     return buildPRBundleFromGQL(data, owner, repo, url);
   }
 
-  const data = await githubGraphQL<GQLIssueData>(ISSUE_QUERY, { owner, repo, number });
+  const data = await githubGraphQL<GQLIssueData>(ISSUE_QUERY, {
+    owner,
+    repo,
+    number,
+  });
   return buildIssueBundleFromGQL(data, owner, repo, url);
 }
 
@@ -206,16 +270,31 @@ function buildPRBundleFromGQL(
     order: order++,
     type: "pull-request",
     timestamp: pr.createdAt,
-    meta: { state: pr.state.toLowerCase(), merged: pr.merged, repo: `${owner}/${repo}` },
+    meta: {
+      state: pr.state.toLowerCase(),
+      merged: pr.merged,
+      repo: `${owner}/${repo}`,
+    },
   });
 
   // Collect all comments + review comments, sort by timestamp
-  const allComments: Array<{ body: string; user: string; timestamp: string; type: string; meta?: Record<string, unknown> }> = [];
+  const allComments: Array<{
+    body: string;
+    user: string;
+    timestamp: string;
+    type: string;
+    meta?: Record<string, unknown>;
+  }> = [];
 
   for (const c of pr.comments.nodes) {
     const login = gqlLogin(c.author);
     addParticipant(participantMap, login, "commenter");
-    allComments.push({ body: c.body, user: login, timestamp: c.createdAt, type: "comment" });
+    allComments.push({
+      body: c.body,
+      user: login,
+      timestamp: c.createdAt,
+      type: "comment",
+    });
   }
 
   for (const review of pr.reviews.nodes) {
@@ -232,7 +311,9 @@ function buildPRBundleFromGQL(
     }
   }
 
-  allComments.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  allComments.sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  );
 
   for (const c of allComments) {
     nodes.push({
@@ -277,7 +358,9 @@ async function fetchAndBuildREST(
     const [pr, comments, reviewComments] = await Promise.all([
       githubFetch<GitHubPullRequest>(`${basePath}/pulls/${number}`),
       fetchAllPages<GitHubComment>(`${basePath}/issues/${number}/comments`),
-      fetchAllPages<GitHubReviewComment>(`${basePath}/pulls/${number}/comments`),
+      fetchAllPages<GitHubReviewComment>(
+        `${basePath}/pulls/${number}/comments`,
+      ),
     ]);
     return buildPRBundle(pr, comments, reviewComments, owner, repo, url);
   }
@@ -297,11 +380,17 @@ async function githubFetch<T>(path: string): Promise<T> {
   });
 
   if (response.status === 403) {
-    throw createAppError("E-PARSE-005", "GitHub API rate limit exceeded. Please try again later.");
+    throw createAppError(
+      "E-PARSE-005",
+      "GitHub API rate limit exceeded. Please try again later.",
+    );
   }
 
   if (!response.ok) {
-    throw createAppError("E-PARSE-005", `GitHub API responded with ${response.status}`);
+    throw createAppError(
+      "E-PARSE-005",
+      `GitHub API responded with ${response.status}`,
+    );
   }
 
   return (await response.json()) as T;
@@ -319,10 +408,16 @@ async function fetchAllPages<T>(path: string): Promise<T[]> {
     });
 
     if (response.status === 403) {
-      throw createAppError("E-PARSE-005", "GitHub API rate limit exceeded. Please try again later.");
+      throw createAppError(
+        "E-PARSE-005",
+        "GitHub API rate limit exceeded. Please try again later.",
+      );
     }
     if (!response.ok) {
-      throw createAppError("E-PARSE-005", `GitHub API responded with ${response.status}`);
+      throw createAppError(
+        "E-PARSE-005",
+        `GitHub API responded with ${response.status}`,
+      );
     }
 
     const data = (await response.json()) as T[];
@@ -348,7 +443,8 @@ function buildIssueBundle(
 ): ContentBundle {
   const participantMap = new Map<string, Participant>();
   addParticipant(participantMap, issue.user.login, "author");
-  for (const c of comments) addParticipant(participantMap, c.user.login, "commenter");
+  for (const c of comments)
+    addParticipant(participantMap, c.user.login, "commenter");
 
   const nodes: ContentNode[] = [];
 
@@ -399,8 +495,10 @@ function buildPRBundle(
 ): ContentBundle {
   const participantMap = new Map<string, Participant>();
   addParticipant(participantMap, pr.user.login, "author");
-  for (const c of comments) addParticipant(participantMap, c.user.login, "commenter");
-  for (const c of reviewComments) addParticipant(participantMap, c.user.login, "reviewer");
+  for (const c of comments)
+    addParticipant(participantMap, c.user.login, "commenter");
+  for (const c of reviewComments)
+    addParticipant(participantMap, c.user.login, "reviewer");
 
   const nodes: ContentNode[] = [];
   let order = 0;
@@ -416,10 +514,21 @@ function buildPRBundle(
   });
 
   // Merge comments and review comments by timestamp
-  const allComments: Array<{ body: string; user: string; timestamp: string; type: string; meta?: Record<string, unknown> }> = [];
+  const allComments: Array<{
+    body: string;
+    user: string;
+    timestamp: string;
+    type: string;
+    meta?: Record<string, unknown>;
+  }> = [];
 
   for (const c of comments) {
-    allComments.push({ body: c.body, user: c.user.login, timestamp: c.created_at, type: "comment" });
+    allComments.push({
+      body: c.body,
+      user: c.user.login,
+      timestamp: c.created_at,
+      type: "comment",
+    });
   }
   for (const c of reviewComments) {
     allComments.push({
@@ -431,7 +540,9 @@ function buildPRBundle(
     });
   }
 
-  allComments.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  allComments.sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  );
 
   for (const c of allComments) {
     nodes.push({
@@ -461,7 +572,11 @@ function buildPRBundle(
   };
 }
 
-function addParticipant(map: Map<string, Participant>, login: string, role?: string): void {
+function addParticipant(
+  map: Map<string, Participant>,
+  login: string,
+  role?: string,
+): void {
   if (map.has(login)) return;
   map.set(login, { id: login, name: login, role });
 }

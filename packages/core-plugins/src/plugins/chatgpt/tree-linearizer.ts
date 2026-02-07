@@ -24,12 +24,9 @@ export function buildLinearConversation(
   }
 
   const nodes = Object.values(mapping)
-    .filter(
-      (node): node is MessageNode & { id: string } => Boolean(node?.id),
-    )
+    .filter((node): node is MessageNode & { id: string } => Boolean(node?.id))
     .sort(
-      (a, b) =>
-        (a.message?.create_time ?? 0) - (b.message?.create_time ?? 0),
+      (a, b) => (a.message?.create_time ?? 0) - (b.message?.create_time ?? 0),
     );
 
   return nodes.map((node) => node.id);

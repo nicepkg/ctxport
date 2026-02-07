@@ -39,6 +39,6 @@
     "vite": "catalog:tooling",
     "vite-tsconfig-paths": "^6.0.5",
     "vitest": "catalog:tooling",
-    "wxt": "^0.20.13"
+    "wxt": "^0.20.14"
   }
 }
