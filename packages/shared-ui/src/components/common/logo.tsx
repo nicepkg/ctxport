@@ -15,85 +15,68 @@ export function Logo({
   height = 32,
   className,
   showName = true,
-  name = "Chat2Poster",
+  name = "CtxPort",
   ...props
 }: LogoProps) {
   return (
     <div className="flex items-center gap-2">
       <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 512 512"
         width={width}
         height={height}
-        viewBox="0 0 256 256"
-        xmlns="http://www.w3.org/2000/svg"
         className={className}
         {...props}
       >
-        <rect width="256" height="256" fill="none" />
         <defs>
-          <linearGradient
-            id="logo-gradient"
-            x1="0%"
-            y1="0%"
-            x2="100%"
-            y2="100%"
-          >
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#818cf8" />
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#818cf8" />
+            <stop offset="100%" stop-color="#6366f1" />
           </linearGradient>
         </defs>
-
-        {/* Chat bubble */}
         <path
-          d="M40 32 h136 a24 24 0 0 1 24 24 v80 a24 24 0 0 1 -24 24 h-88 l-40 40 v-40 h-8 a24 24 0 0 1 -24 -24 v-80 a24 24 0 0 1 24 -24 z"
-          fill="url(#logo-gradient)"
-        />
-
-        {/* Chat lines */}
-        <rect
-          x="56"
-          y="72"
-          width="88"
-          height="12"
-          rx="6"
-          fill="white"
-          opacity="0.9"
-        />
-        <rect
-          x="56"
-          y="100"
-          width="64"
-          height="12"
-          rx="6"
-          fill="white"
-          opacity="0.7"
+          d="
+      M 104 64
+      C 80 64, 64 80, 64 104
+      L 64 408
+      C 64 432, 80 448, 104 448
+      L 264 448
+      L 264 368
+      L 368 368
+      L 448 256
+      L 368 144
+      L 264 144
+      L 264 64
+      Z
+    "
+          fill="url(#g)"
         />
         <rect
-          x="56"
-          y="128"
-          width="80"
-          height="12"
-          rx="6"
-          fill="white"
-          opacity="0.5"
-        />
-
-        {/* Image frame at bottom right */}
-        <rect
-          x="152"
-          y="168"
-          width="80"
-          height="64"
-          rx="8"
-          fill="url(#logo-gradient)"
+          x="116"
+          y="200"
+          width="136"
+          height="24"
+          rx="12"
+          fill="#fff"
+          opacity="0.92"
         />
         <rect
-          x="160"
-          y="176"
-          width="64"
-          height="48"
-          rx="4"
-          fill="white"
-          opacity="0.9"
+          x="116"
+          y="244"
+          width="108"
+          height="24"
+          rx="12"
+          fill="#fff"
+          opacity="0.72"
+        />
+        <rect
+          x="116"
+          y="288"
+          width="124"
+          height="24"
+          rx="12"
+          fill="#fff"
+          opacity="0.52"
         />
       </svg>
       {showName && (
