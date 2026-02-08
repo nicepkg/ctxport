@@ -14,9 +14,6 @@ on:
   pull_request_target:
     types: [opened, edited, synchronize, reopened]
 
-permissions:
-  pull-requests: write
-
 jobs:
   validate:
     name: Validate PR Title
