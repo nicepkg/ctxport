@@ -478,4 +478,591 @@ describe("doubaoPlugin", () => {
       expect(bundle.source.url).toBe("https://www.doubao.com/chat/456");
     });
   });
+
+  describe("heading demotion", () => {
+    beforeEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("shifts all headings to nest below ## level when content has # H1", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: [
+                          "# 一级标题",
+                          "正文内容",
+                          "## 二级标题",
+                          "更多内容",
+                          "### 三级标题",
+                          "最深内容",
+                        ].join("\n"),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=1 (#), shift=2 → #→###, ##→####, ###→#####
+      expect(content).toContain("### 一级标题");
+      expect(content).toContain("#### 二级标题");
+      expect(content).toContain("##### 三级标题");
+      // No original-level headings left outside fences
+      expect(content).toContain("正文内容");
+    });
+
+    it("preserves headings inside fenced code blocks", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: [
+                          "# 外面标题",
+                          "",
+                          "```md",
+                          "# 代码块内标题不应降级",
+                          "## 也不应降级",
+                          "```",
+                          "",
+                          "## 外面小标题",
+                        ].join("\n"),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=1 (#), shift=2 → #→###, ##→####
+      expect(content).toContain("### 外面标题");
+      expect(content).toContain("#### 外面小标题");
+      // Inside fence preserved
+      expect(content).toContain("# 代码块内标题不应降级");
+      expect(content).toContain("## 也不应降级");
+    });
+
+    it("shifts by 1 when highest heading is ## (level 2)", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: [
+                          "## 最高二级",
+                          "正文",
+                          "### 三级标题",
+                          "更多正文",
+                        ].join("\n"),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=2 (##), shift=1 → ##→###, ###→####
+      expect(content).toContain("### 最高二级");
+      expect(content).toContain("#### 三级标题");
+    });
+
+    it("leaves headings unchanged when already below ## level", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: ["### 三级标题", "正文", "#### 四级标题"].join(
+                          "\n",
+                        ),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=3, shift=0 → unchanged
+      expect(content).toContain("### 三级标题");
+      expect(content).toContain("#### 四级标题");
+    });
+
+    it("leaves 7+ hashes unchanged (not valid ATX headings)", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: ["####### 七个井号不是标题", "## 正常二级"].join(
+                          "\n",
+                        ),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=2 (##), shift=1 → ##→###; 7+ hashes unchanged
+      expect(content).toContain("####### 七个井号不是标题");
+      expect(content).toContain("### 正常二级");
+    });
+
+    it("leaves content unchanged when there are no headings", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: [
+                          "这是普通文本",
+                          "没有任何标题",
+                          "只有段落和换行",
+                        ].join("\n"),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=Infinity (no headings), shift=0 → completely unchanged
+      expect(content).toContain("这是普通文本");
+      expect(content).toContain("没有任何标题");
+      expect(content).toContain("只有段落和换行");
+    });
+
+    it("leaves content unchanged when headings only appear inside code fences", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: [
+                          "这是一段说明",
+                          "",
+                          "```markdown",
+                          "# 代码块内的标题",
+                          "## 另一个标题",
+                          "```",
+                          "",
+                          "后面也没有标题",
+                        ].join("\n"),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=Infinity (headings only in fences), shift=0 → unchanged
+      expect(content).toContain("# 代码块内的标题");
+      expect(content).toContain("## 另一个标题");
+      expect(content).toContain("这是一段说明");
+    });
+
+    it("caps heading level at 6 when shift would exceed it", async () => {
+      const chainResponse = {
+        cmd: 3100,
+        downlink_body: {
+          pull_singe_chain_downlink_body: {
+            messages: [
+              {
+                conversation_id: "123",
+                message_id: "m1",
+                sender_id: "bot1",
+                user_type: 2,
+                status: 0,
+                content_type: 0,
+                content: "",
+                content_status: 0,
+                index_in_conv: "1",
+                create_time: "1700000000",
+                thinking_content: "",
+                content_block: [
+                  {
+                    block_type: 10000,
+                    block_id: "b1",
+                    parent_id: "",
+                    content: {
+                      text_block: {
+                        text: [
+                          "# 一级标题",
+                          "正文",
+                          "##### 五级标题",
+                          "更多正文",
+                        ].join("\n"),
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            has_more: false,
+          },
+        },
+      };
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation((url: string) => {
+          if (url.includes("/im/conversation/info")) {
+            return Promise.resolve({
+              ok: true,
+              json: () => Promise.resolve({ cmd: 1110, downlink_body: {} }),
+            });
+          }
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(chainResponse),
+          });
+        }),
+      );
+
+      const ctx: PluginContext = {
+        url: "https://www.doubao.com/chat/123",
+        document: {} as Document,
+      };
+
+      const bundle = await doubaoPlugin.extract(ctx);
+      const content = bundle.nodes[0]!.content;
+
+      // minLevel=1 (#), shift=2 → #→###, #####→###### (capped at 6, not 7)
+      expect(content).toContain("### 一级标题");
+      expect(content).toContain("###### 五级标题");
+      // Should NOT have 7+ hashes
+      expect(content).not.toContain("#######");
+    });
+  });
 });

@@ -37,10 +37,14 @@ export default function App() {
     if (!plugin) return;
 
     if (plugin.injector) {
+      let copyButtonRendered = false;
+
       plugin.injector.inject(
         { url, document },
         {
           renderCopyButton: (container) => {
+            copyButtonRendered = true;
+            setShowFloatingCopy(false);
             const root = createRoot(container);
             root.render(<CopyButton onToast={showToast} />);
           },
@@ -53,7 +57,17 @@ export default function App() {
         },
       );
 
-      cleanupRef.current = () => plugin.injector?.cleanup();
+      // Safety net: if copy button isn't injected after 8s, show floating button
+      const fallbackTimer = setTimeout(() => {
+        if (!copyButtonRendered) {
+          setShowFloatingCopy(true);
+        }
+      }, 8000);
+
+      cleanupRef.current = () => {
+        clearTimeout(fallbackTimer);
+        plugin.injector?.cleanup();
+      };
     } else {
       // No injector — show floating copy button as fallback
       setShowFloatingCopy(true);

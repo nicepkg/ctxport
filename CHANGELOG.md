@@ -21,3 +21,5 @@
 
 * correct SVG attribute casing in Logo component ([01a213c](https://github.com/nicepkg/ctxport/commit/01a213c69eb7980fb8d0b48c2c879b7069a47039))
 * correct zip output path in release workflow ([56be20f](https://github.com/nicepkg/ctxport/commit/56be20f2c67834f5128711c2b393988638aaf792))
+* **doubao:** fix copy button not appearing due to fragile DOM selector ([ab1f1d0](../../commit/ab1f1d0))
+* **doubao:** fix heading level conflict — content headings now dynamically demoted to nest below `## User`/`## Assistant` section headers ([ab1f1d0](../../commit/ab1f1d0))

@@ -48,6 +48,12 @@ export const doubaoPlugin: Plugin = {
     copyButtonSelectors: [
       // Right-aligned container in the header row (next to share button)
       'main div[class*="header-height"] > .justify-end',
+      // Fallback: broader header area in main
+      'main [class*="header"] .justify-end',
+      // Fallback: any div with header class containing flex-end area
+      'div[class*="header"] > .justify-end',
+      // Fallback: standard HTML header element with action area
+      "header .justify-end",
     ],
     copyButtonPosition: "prepend",
     listItemLinkSelector: 'nav a[href^="/chat/"]',
@@ -205,6 +211,96 @@ async function fetchAllMessages(
   return allMessages;
 }
 
+// --- Markdown heading demotion ---
+
+/** Section header level in output markdown (## = level 2) */
+const SECTION_LEVEL = 2;
+
+/**
+ * Find the highest (smallest number) ATX heading level in text,
+ * skipping fenced code blocks. Returns Infinity if no headings found.
+ */
+function findMinHeadingLevel(text: string): number {
+  const fencePattern = /```[\s\S]*?```/g;
+  const headingPattern = /^[ \t]{0,3}(#{1,6})\s/gm;
+  let minLevel = Infinity;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = fencePattern.exec(text)) !== null) {
+    // Scan non-fence text before this fence
+    const segment = text.slice(lastIndex, match.index);
+    let hm: RegExpExecArray | null;
+    while ((hm = headingPattern.exec(segment)) !== null) {
+      const level = hm[1]!.length;
+      if (level < minLevel) minLevel = level;
+    }
+    lastIndex = fencePattern.lastIndex;
+  }
+  // Scan text after last fence
+  const remaining = text.slice(lastIndex);
+  let hm: RegExpExecArray | null;
+  headingPattern.lastIndex = 0;
+  while ((hm = headingPattern.exec(remaining)) !== null) {
+    const level = hm[1]!.length;
+    if (level < minLevel) minLevel = level;
+  }
+
+  return minLevel;
+}
+
+/**
+ * Demote all ATX headings so that the highest heading in the content
+ * starts at SECTION_LEVEL + 1 (i.e., ###), ensuring all content
+ * headings nest properly under the ## User / ## Assistant section headers.
+ *
+ * Examples:
+ *   Content has `# H1`     → shift=2  → `#`→`###`, `###`→`#####`
+ *   Content has `## H2`    → shift=1  → `##`→`###`, `###`→`####`
+ *   Content has `### H3`   → shift=0  → unchanged (already below ##)
+ */
+function demoteHeadings(text: string): string {
+  const minLevel = findMinHeadingLevel(text);
+
+  // How many levels to shift down so all headings sit below ##
+  const shift = minLevel <= SECTION_LEVEL ? SECTION_LEVEL + 1 - minLevel : 0;
+
+  if (shift === 0) return text;
+
+  // Split into fence / non-fence segments, shift headings in non-fence parts
+  const fencePattern = /```[\s\S]*?```/g;
+  const segments: { text: string; isFence: boolean }[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = fencePattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({
+        text: text.slice(lastIndex, match.index),
+        isFence: false,
+      });
+    }
+    segments.push({ text: match[0], isFence: true });
+    lastIndex = fencePattern.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex), isFence: false });
+  }
+
+  return segments
+    .map((seg) => {
+      if (seg.isFence) return seg.text;
+      return seg.text.replace(
+        /^([ \t]{0,3})(#{1,6})(\s)/gm,
+        (_full, ws: string, hashes: string, sp: string) => {
+          const newLevel = Math.min(hashes.length + shift, 6);
+          return ws + "#".repeat(newLevel) + sp;
+        },
+      );
+    })
+    .join("");
+}
+
 // --- Parse conversation into ContentBundle ---
 
 function extractMessageText(message: DoubaoMessage): string {
@@ -272,7 +368,7 @@ function parseConversation(
   const contentNodes: ContentBundle["nodes"] = grouped.map((msg, index) => ({
     id: generateId(),
     participantId: msg.role === "user" ? "user" : "assistant",
-    content: msg.text,
+    content: demoteHeadings(msg.text),
     order: index,
     type: "message",
   }));
