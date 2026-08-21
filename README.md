@@ -13,7 +13,7 @@ Your AI conversations deserve a better clipboard.
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/nicepkg/ctxport/pulls)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4?logo=googlechrome)](https://developer.chrome.com/docs/extensions/mv3/)
 
-[简体中文](./README_cn.md) | English
+[简体中文](./README_cn.md) | English | [Русский](./README_ru.md)
 
 **Supported Platforms**
 
