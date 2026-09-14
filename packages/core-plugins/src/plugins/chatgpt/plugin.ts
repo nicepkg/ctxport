@@ -9,8 +9,9 @@ import { buildLinearConversation } from "./tree-linearizer";
 import type { ChatGPTConversationResponse, MessageNode } from "./types";
 
 const HOST_PATTERN = /^https:\/\/(?:chatgpt\.com|chat\.openai\.com)\//i;
+// Matches both /c/<id> and project conversations at /g/<project>/c/<id>
 const CONVERSATION_PATTERN =
-  /^https?:\/\/(?:chat\.openai\.com|chatgpt\.com)\/c\/([a-zA-Z0-9-]+)/;
+  /^https?:\/\/(?:chat\.openai\.com|chatgpt\.com)\/(?:g\/[^/]+\/)?c\/([a-zA-Z0-9-]+)/;
 
 const SESSION_ENDPOINT = "https://chatgpt.com/api/auth/session";
 const API_ENDPOINT = "https://chatgpt.com/backend-api/conversation";
