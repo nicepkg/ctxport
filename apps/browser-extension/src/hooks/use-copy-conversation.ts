@@ -47,7 +47,7 @@ export function useCopyConversation() {
         setResult(null);
       }, 1500);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message = getErrorMessage(err);
       setError(message);
       setState("error");
 
@@ -59,4 +59,15 @@ export function useCopyConversation() {
   }, []);
 
   return { state, result, error, copy };
+}
+
+// Plugins throw plain AppError objects ({ code, message, detail }), not Error instances
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const { message, detail } = err as { message?: unknown; detail?: unknown };
+    if (typeof detail === "string" && detail) return detail;
+    if (typeof message === "string" && message) return message;
+  }
+  return "Unknown error";
 }
