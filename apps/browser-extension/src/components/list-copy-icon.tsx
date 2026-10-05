@@ -193,13 +193,22 @@ function formatCopyError(error: unknown): string {
       return details.message;
     }
     try {
-      return JSON.stringify(error);
+      return (
+        JSON.stringify(error, Object.getOwnPropertyNames(error)) ??
+        "Unexpected object error"
+      );
     } catch {
-      return String(error);
+      return "Unable to describe the error object.";
     }
   }
   if (typeof error === "string" && error) return error;
-  if (error !== undefined && error !== null) return String(error);
+  if (
+    typeof error === "number" ||
+    typeof error === "boolean" ||
+    typeof error === "bigint"
+  ) {
+    return `${error}`;
+  }
   return "Unable to fetch this conversation.";
 }
 
