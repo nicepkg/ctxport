@@ -28,6 +28,7 @@ export {
   geminiPlugin,
   githubPlugin,
   grokPlugin,
+  kimiPlugin,
 } from "./plugins";
 
 // Host permissions constant (for WXT config)
@@ -37,6 +38,7 @@ import { deepseekPlugin } from "./plugins/deepseek/plugin";
 import { geminiPlugin } from "./plugins/gemini/plugin";
 import { githubPlugin } from "./plugins/github/plugin";
 import { grokPlugin } from "./plugins/grok/plugin";
+import { kimiPlugin } from "./plugins/kimi/plugin";
 export const EXTENSION_HOST_PERMISSIONS = [
   ...chatgptPlugin.urls.hosts,
   ...claudePlugin.urls.hosts,
@@ -44,4 +46,5 @@ export const EXTENSION_HOST_PERMISSIONS = [
   ...geminiPlugin.urls.hosts,
   ...githubPlugin.urls.hosts,
   ...grokPlugin.urls.hosts,
+  ...kimiPlugin.urls.hosts,
 ];

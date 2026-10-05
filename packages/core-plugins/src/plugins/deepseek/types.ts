@@ -23,6 +23,8 @@ export interface DeepSeekMessage {
   role: string;
   /** Final answer text content */
   content?: string;
+  /** Text fragments used by another DeepSeek history API response variant. */
+  fragments?: DeepSeekMessageFragment[];
   /** Thinking/reasoning content (DeepThink R1) */
   thinking_content?: string;
   /** Message accumulated token count */
@@ -31,4 +33,9 @@ export interface DeepSeekMessage {
   inserted_at?: string;
   /** Files attached to message */
   files?: unknown[];
+}
+
+export interface DeepSeekMessageFragment {
+  type?: string;
+  content?: string;
 }

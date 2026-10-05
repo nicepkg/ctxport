@@ -88,13 +88,12 @@ export function ListCopyIcon({ conversationId, onToast }: ListCopyIconProps) {
         setTimeout(() => {
           if (mountedRef.current) setState("idle");
         }, 1500);
-      } catch (_err) {
+      } catch (err) {
         if (!mountedRef.current) return;
         setState("error");
         onToast({
           title: "CtxPort \u00b7 Copy failed",
-          subtitle:
-            "Fetch failed. Please open the conversation and use the in-page copy button.",
+          subtitle: formatCopyError(err),
           type: "error",
         });
         setTimeout(() => {
@@ -181,6 +180,27 @@ export function ListCopyIcon({ conversationId, onToast }: ListCopyIconProps) {
       )}
     </>
   );
+}
+
+function formatCopyError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === "object") {
+    const details = error as { detail?: unknown; message?: unknown };
+    if (typeof details.detail === "string" && details.detail) {
+      return details.detail;
+    }
+    if (typeof details.message === "string" && details.message) {
+      return details.message;
+    }
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return String(error);
+    }
+  }
+  if (typeof error === "string" && error) return error;
+  if (error !== undefined && error !== null) return String(error);
+  return "Unable to fetch this conversation.";
 }
 
 function iconColor(state: IconState): string {

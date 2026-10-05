@@ -22,6 +22,7 @@
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://gemini.google.com)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-0066FF?style=for-the-badge&logo=deepseek&logoColor=white)](https://chat.deepseek.com)
 [![Grok](https://img.shields.io/badge/Grok-000000?style=for-the-badge&logo=x&logoColor=white)](https://grok.com)
+[![Kimi](https://img.shields.io/badge/Kimi-536dfe?style=for-the-badge)](https://www.kimi.ai)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com)
 
 <br />
@@ -167,12 +168,12 @@ pnpm dev:ext
 
 ### 使用方法
 
-1. 打开任何支持的平台（ChatGPT, Claude, Gemini, DeepSeek, Grok, GitHub）
+1. 打开任何支持的平台（ChatGPT, Claude, Gemini, DeepSeek, Grok, Kimi, GitHub）
 2. 开始或打开一段对话
 3. 点击对话中出现的 **CtxPort 复制按钮**，或按 `Alt+Shift+C`
 4. 将 Context Bundle 粘贴到任何你需要的地方
 
-侧边栏列表复制：悬停在左侧边栏的任意对话上，即可看到复制图标。
+侧边栏列表复制：点击左侧边栏对话旁显示的复制图标。
 
 ---
 
@@ -183,6 +184,7 @@ pnpm dev:ext
 - [x] Gemini 支持
 - [x] DeepSeek 支持
 - [x] Grok 支持
+- [x] Kimi 支持
 - [x] GitHub Issues & PRs 支持
 - [x] 侧边栏列表复制
 - [x] 多种复制格式

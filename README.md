@@ -22,6 +22,7 @@ Your AI conversations deserve a better clipboard.
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)](https://gemini.google.com)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-0066FF?style=for-the-badge&logo=deepseek&logoColor=white)](https://chat.deepseek.com)
 [![Grok](https://img.shields.io/badge/Grok-000000?style=for-the-badge&logo=x&logoColor=white)](https://grok.com)
+~[![Kimi](https://img.shields.io/badge/Kimi-536dfe?style=for-the-badge)](https://www.kimi.ai)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com)
 
 <br />
@@ -167,12 +168,12 @@ Then load the unpacked extension from `apps/browser-extension/dist/chrome-mv3-de
 
 ### Usage
 
-1. Navigate to any supported platform (ChatGPT, Claude, Gemini, DeepSeek, Grok, GitHub)
+1. Navigate to any supported platform (ChatGPT, Claude, Gemini, DeepSeek, Grok, Kimi, GitHub)
 2. Start or open a conversation
 3. Click the **CtxPort copy button** that appears in the chat, or press `Alt+Shift+C`
 4. Paste your Context Bundle wherever you need it
 
-For sidebar list copy: hover over any conversation in the left sidebar to reveal the copy icon.
+For sidebar list copy: use the copy icon shown next to conversations in the left sidebar.
 
 ---
 
@@ -183,6 +184,7 @@ For sidebar list copy: hover over any conversation in the left sidebar to reveal
 - [x] Gemini support
 - [x] DeepSeek support
 - [x] Grok support
+- [x] Kimi support
 - [x] GitHub Issues & PRs support
 - [x] Sidebar list copy
 - [x] Multiple copy formats

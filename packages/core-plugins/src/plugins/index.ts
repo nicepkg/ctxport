@@ -5,6 +5,7 @@ import { deepseekPlugin } from "./deepseek/plugin";
 import { geminiPlugin } from "./gemini/plugin";
 import { githubPlugin } from "./github/plugin";
 import { grokPlugin } from "./grok/plugin";
+import { kimiPlugin } from "./kimi/plugin";
 
 export function registerBuiltinPlugins(): void {
   registerPlugin(chatgptPlugin);
@@ -13,6 +14,7 @@ export function registerBuiltinPlugins(): void {
   registerPlugin(geminiPlugin);
   registerPlugin(githubPlugin);
   registerPlugin(grokPlugin);
+  registerPlugin(kimiPlugin);
 }
 
 export { chatgptPlugin } from "./chatgpt/plugin";
@@ -21,3 +23,4 @@ export { deepseekPlugin } from "./deepseek/plugin";
 export { geminiPlugin } from "./gemini/plugin";
 export { githubPlugin } from "./github/plugin";
 export { grokPlugin } from "./grok/plugin";
+export { kimiPlugin } from "./kimi/plugin";

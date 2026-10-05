@@ -3,7 +3,7 @@ import { createAppError } from "@ctxport/core-schema";
 import type { Plugin, PluginContext } from "../../types";
 import { generateId } from "../../utils";
 import { createChatInjector } from "../shared/chat-injector";
-import type { DeepSeekHistoryResponse } from "./types";
+import type { DeepSeekHistoryResponse, DeepSeekMessage } from "./types";
 
 const HOST_PATTERN = /^https:\/\/chat\.deepseek\.com\//i;
 const CONVERSATION_PATTERN =
@@ -51,7 +51,7 @@ export const deepseekPlugin: Plugin = {
     ],
     copyButtonPosition: "prepend",
     listItemLinkSelector: 'a[href*="/a/chat/"]',
-    listItemIdPattern: /\/a\/chat\/(?:s\/)?([a-zA-Z0-9-]+)$/,
+    listItemIdPattern: /\/a\/chat\/(?:s\/)?([a-zA-Z0-9-]+)(?:[/?#]|$)/,
     mainContentSelector:
       'main, [class*="chat-container"], [class*="conversation"]',
     sidebarSelector: 'nav, [class*="sidebar"], [class*="session-list"]',
@@ -137,6 +137,20 @@ function normalizeRole(role: string): "user" | "assistant" | null {
   return null;
 }
 
+function extractMessageText(
+  message: DeepSeekMessage,
+  role: "user" | "assistant",
+): string {
+  const fragmentType = role === "user" ? "REQUEST" : "RESPONSE";
+  const fragmentText = message.fragments
+    ?.filter((fragment) => fragment.type?.toUpperCase() === fragmentType)
+    .map((fragment) => fragment.content?.trim() ?? "")
+    .filter(Boolean)
+    .join("\n");
+
+  return fragmentText || message.content?.trim() || "";
+}
+
 function parseConversation(
   data: DeepSeekHistoryResponse,
   url: string,
@@ -160,8 +174,8 @@ function parseConversation(
     const role = normalizeRole(message.role);
     if (!role) continue;
 
-    // Use content only (skip thinking_content — DeepThink reasoning)
-    const text = message.content?.trim();
+    // Ignore thinking fragments; only include visible prompts and responses.
+    const text = extractMessageText(message, role);
     if (!text) continue;
 
     const last = grouped[grouped.length - 1];

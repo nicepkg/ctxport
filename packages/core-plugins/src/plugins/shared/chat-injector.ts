@@ -71,6 +71,12 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
   let observers: MutationObserver[] = [];
   let timers: ReturnType<typeof setTimeout>[] = [];
   let callbacks: InjectorCallbacks | null = null;
+  const injectedTargets = new Set<HTMLElement>();
+
+  function markTargetInjected(el: HTMLElement, type: string): void {
+    markInjected(el, type);
+    injectedTargets.add(el);
+  }
 
   function tryInjectCopyButton(): void {
     if (!callbacks) return;
@@ -96,7 +102,7 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
             break;
         }
 
-        markInjected(target, "copy-btn");
+        markTargetInjected(target, "copy-btn");
         callbacks.renderCopyButton(container);
         return;
       }
@@ -124,11 +130,9 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       container.style.position = "absolute";
       container.style.right = "36px";
       container.style.top = "50%";
-      container.style.opacity = "0";
-      container.style.transform = "translateY(-50%) scale(0.85)";
-      container.style.transition =
-        "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
-      container.style.pointerEvents = "none";
+      container.style.opacity = "1";
+      container.style.transform = "translateY(-50%)";
+      container.style.pointerEvents = "auto";
       container.style.zIndex = "10";
 
       const parent = link.closest("li") ?? link;
@@ -138,23 +142,9 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
           parent.style.position = "relative";
         }
         parent.appendChild(container);
-        parent.addEventListener("mouseenter", () => {
-          container.style.opacity = "1";
-          container.style.transform = "translateY(-50%) scale(1)";
-          container.style.transition =
-            "opacity 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.22, 1.2, 0.36, 1)";
-          container.style.pointerEvents = "auto";
-        });
-        parent.addEventListener("mouseleave", () => {
-          container.style.opacity = "0";
-          container.style.transform = "translateY(-50%) scale(0.85)";
-          container.style.transition =
-            "opacity 150ms cubic-bezier(0.55, 0, 1, 0.45), transform 150ms cubic-bezier(0.55, 0, 1, 0.45)";
-          container.style.pointerEvents = "none";
-        });
       }
 
-      markInjected(link, "list-icon");
+      markTargetInjected(link, "list-icon");
       callbacks.renderListIcon(container, id);
     }
   }
@@ -185,12 +175,8 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
         const debouncedTry = debouncedObserverCallback(() =>
           tryInjectListIcons(),
         );
-        const sidebar =
-          document.querySelector(config.sidebarSelector) ??
-          document.querySelector("nav") ??
-          document.body;
         const observer = new MutationObserver(debouncedTry);
-        observer.observe(sidebar, { childList: true, subtree: true });
+        observer.observe(document.body, { childList: true, subtree: true });
         observers.push(observer);
       }, INJECTION_DELAY_MS);
       timers.push(listTimer);
@@ -203,6 +189,10 @@ export function createChatInjector(config: ChatInjectorConfig): PluginInjector {
       timers = [];
       removeAllByClass(copyBtnClass);
       removeAllByClass(listIconClass);
+      for (const target of injectedTargets) {
+        target.removeAttribute(CTXPORT_ATTR);
+      }
+      injectedTargets.clear();
       callbacks = null;
     },
   };
